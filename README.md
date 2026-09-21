@@ -48,6 +48,7 @@ display:
 ### Docker
 
 - `ignore` list of ignored container names
+- `ignore_stopped` list of container names that will not trigger a warning when stopped (they are hidden from the output while stopped; other non-running states still trigger a warning)
 
 ### Network
 
