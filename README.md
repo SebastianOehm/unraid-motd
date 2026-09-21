@@ -50,6 +50,14 @@ display:
 - `ignore` list of ignored container names
 - `ignore_stopped` list of container names that will not trigger a warning when stopped (they are hidden from the output while stopped; other non-running states still trigger a warning)
 
+### Docker Compose
+
+Reports the status of docker-compose stacks managed by the [Compose Manager](https://forums.unraid.net/topic/114415-plugin-docker-compose-manager/) plugin. Stacks are read from disk rather than from running containers, so a stack that has been fully stopped with `docker compose down` (which removes its containers) is still reported as stopped, unlike the `docker` module.
+
+- `projects_path` directory containing one subdirectory per compose stack, default `/boot/config/plugins/compose.manager/projects`
+- `ignore` list of ignored stack names
+- `ignore_stopped` list of stack names that will not trigger a warning when fully stopped (they are hidden from the output while stopped; a stack with only some containers running still triggers a warning)
+
 ### Network
 
 - `show_ipv4` / `show_ipv6` show IPv4/IPv6 addresses in output
