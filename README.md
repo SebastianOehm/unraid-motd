@@ -1,6 +1,6 @@
 # Introduction
 
-[![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![GitHub Releases](https://img.shields.io/github/v/release/SebastianOehm/unraid-motd)](https://github.com/SebastianOehm/unraid-motd/releases)
 [![Last Commit](https://img.shields.io/github/last-commit/SebastianOehm/unraid-motd)](https://github.com/SebastianOehm/unraid-motd/commits/main/)
 ![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/SebastianOehm/unraid-motd/total)
