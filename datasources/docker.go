@@ -20,12 +20,15 @@ type ConfDocker struct {
 	ConfBase `yaml:",inline"`
 	// List of container names to ignore
 	Ignore []string `yaml:"ignore"`
+	// List of container names for which a stopped state is not a warning
+	IgnoreStopped []string `yaml:"ignore_stopped"`
 }
 
 // Init sets up default alignment
 func (c *ConfDocker) Init() {
 	c.ConfBase.Init()
 	c.Ignore = []string{}
+	c.IgnoreStopped = []string{}
 }
 
 // GetDocker docker container status using the API
@@ -45,7 +48,7 @@ func GetDocker(channel chan<- SourceReturn, conf *Conf) {
 		t := GetTableWriter(sourceConf)
 		returnData.Content = RenderTable(t, "Docker: "+utils.Warn("Unavailable"))
 	} else {
-		returnData.Content = containers.getContent(sourceConf.Ignore, *sourceConf.WarnOnly, sourceConf)
+		returnData.Content = containers.getContent(sourceConf.Ignore, sourceConf.IgnoreStopped, *sourceConf.WarnOnly, sourceConf)
 	}
 }
 

@@ -19,13 +19,16 @@ type containerList struct {
 	Containers []containerStatus
 }
 
-func (cl *containerList) getContent(ignoreList []string, warnOnly bool, sourceConf TableConfig) (content string) {
+func (cl *containerList) getContent(ignoreList []string, ignoreStoppedList []string, warnOnly bool, sourceConf TableConfig) (content string) {
 	outputTable := GetTableWriter(sourceConf)
 	var title string
 
 	// Make set of ignored containers
 	var ignoreSet utils.StringSet
 	ignoreSet = ignoreSet.FromList(ignoreList)
+	// Make set of containers allowed to be stopped without a warning
+	var ignoreStoppedSet utils.StringSet
+	ignoreStoppedSet = ignoreStoppedSet.FromList(ignoreStoppedList)
 	// Process output
 	var goodCont = make(map[string]string)
 	var failedCont = make(map[string]string)
@@ -35,6 +38,9 @@ func (cl *containerList) getContent(ignoreList []string, warnOnly bool, sourceCo
 			continue
 		}
 		status := strings.ToLower(container.Status)
+		if status == "exited" && ignoreStoppedSet.Contains(container.Name) {
+			continue
+		}
 		if status == "up" || status == "created" || status == "running" {
 			goodCont[container.Name] = status
 		} else {

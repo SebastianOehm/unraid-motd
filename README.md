@@ -1,10 +1,12 @@
 # Introduction
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)
-[![GitHub Releases](https://img.shields.io/github/v/release/dkaser/unraid-motd)](https://github.com/dkaser/unraid-motd/releases)
-[![Last Commit](https://img.shields.io/github/last-commit/dkaser/unraid-motd)](https://github.com/dkaser/unraid-motd/commits/main/)
-![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/dkaser/unraid-motd/total)
-![GitHub Downloads (all assets, latest release)](https://img.shields.io/github/downloads/dkaser/unraid-motd/latest/total)
+[![GitHub Releases](https://img.shields.io/github/v/release/SebastianOehm/unraid-motd)](https://github.com/SebastianOehm/unraid-motd/releases)
+[![Last Commit](https://img.shields.io/github/last-commit/SebastianOehm/unraid-motd)](https://github.com/SebastianOehm/unraid-motd/commits/main/)
+![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/SebastianOehm/unraid-motd/total)
+![GitHub Downloads (all assets, latest release)](https://img.shields.io/github/downloads/SebastianOehm/unraid-motd/latest/total)
+
+Maintained fork of [dkaser/unraid-motd](https://github.com/dkaser/unraid-motd), which is no longer maintained.
 
 ## Configuration
 
@@ -48,6 +50,15 @@ display:
 ### Docker
 
 - `ignore` list of ignored container names
+- `ignore_stopped` list of container names that will not trigger a warning when stopped (they are hidden from the output while stopped; other non-running states still trigger a warning)
+
+### Docker Compose
+
+Reports the status of docker-compose stacks managed by the [Compose Manager](https://forums.unraid.net/topic/114415-plugin-docker-compose-manager/) plugin. Stacks are read from disk rather than from running containers, so a stack that has been fully stopped with `docker compose down` (which removes its containers) is still reported as stopped, unlike the `docker` module.
+
+- `projects_path` directory containing one subdirectory per compose stack, default `/boot/config/plugins/compose.manager/projects`
+- `ignore` list of ignored stack names
+- `ignore_stopped` list of stack names that will not trigger a warning when fully stopped (they are hidden from the output while stopped; a stack with only some containers running still triggers a warning)
 
 ### Network
 

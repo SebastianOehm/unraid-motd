@@ -3,25 +3,27 @@ name: Commit Quality
 on:
   push:
     branches:
-      - trunk
+      - main
   pull_request:
+
+permissions:
+  contents: read
 
 jobs:
   commitlint:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     steps:
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 22
 
-      - name: Install commitlint
-        run: |
-          npm install -g commitlint
-          npm install -g "@commitlint/config-conventional"
-
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
+      # Installed locally (not -g) so the extends in .commitlintrc.json resolves.
+      - name: Install commitlint
+        run: npm install --no-save @commitlint/cli @commitlint/config-conventional
 
       - name: Validate current commit (last commit) with commitlint
         if: github.event_name == 'push'

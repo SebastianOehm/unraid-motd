@@ -97,6 +97,8 @@ Loop:
 			go GetCPUTemp(channel, conf)
 		case "docker":
 			go GetDocker(channel, conf)
+		case "compose":
+			go GetCompose(channel, conf)
 		case "sysinfo":
 			go GetSysInfo(channel, conf)
 		case "user-drives":

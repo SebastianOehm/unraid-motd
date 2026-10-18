@@ -1,6 +1,8 @@
 {
     "name": "motd",
-    "githubRepository": "dkaser/unraid-motd",
+    "author": "Sebastian Oehm",
+    "githubRepository": "SebastianOehm/unraid-motd",
+    "supportURL": "https://github.com/SebastianOehm/unraid-motd/issues",
     "pluginDirectory": "/usr/local/emhttp/plugins/motd",
     "configDirectory": "/boot/config/plugins/motd",
     "figurineVersion": "v1.3.0",
