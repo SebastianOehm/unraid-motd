@@ -1,10 +1,12 @@
 # Introduction
 
 [![License: GPL v3](https://img.shields.io/badge/License-GPLv3-blue.svg)](LICENSE)
-[![GitHub Releases](https://img.shields.io/github/v/release/dkaser/unraid-motd)](https://github.com/dkaser/unraid-motd/releases)
-[![Last Commit](https://img.shields.io/github/last-commit/dkaser/unraid-motd)](https://github.com/dkaser/unraid-motd/commits/main/)
-![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/dkaser/unraid-motd/total)
-![GitHub Downloads (all assets, latest release)](https://img.shields.io/github/downloads/dkaser/unraid-motd/latest/total)
+[![GitHub Releases](https://img.shields.io/github/v/release/SebastianOehm/unraid-motd)](https://github.com/SebastianOehm/unraid-motd/releases)
+[![Last Commit](https://img.shields.io/github/last-commit/SebastianOehm/unraid-motd)](https://github.com/SebastianOehm/unraid-motd/commits/main/)
+![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/SebastianOehm/unraid-motd/total)
+![GitHub Downloads (all assets, latest release)](https://img.shields.io/github/downloads/SebastianOehm/unraid-motd/latest/total)
+
+Maintained fork of [dkaser/unraid-motd](https://github.com/dkaser/unraid-motd), which is no longer maintained.
 
 ## Configuration
 
