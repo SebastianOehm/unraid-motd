@@ -7,6 +7,7 @@ type Conf struct {
 	CPU          ConfTempCPU  `yaml:"cpu"`
 	Docker       ConfDocker   `yaml:"docker"`
 	Compose      ConfCompose  `yaml:"compose"`
+	VMs          ConfVMs      `yaml:"vms"`
 	SysInfo      ConfSysInfo  `yaml:"sysinfo"`
 	UserDrives   ConfDrives   `yaml:"user-drives"`
 	SystemDrives ConfDrives   `yaml:"system-drives"`
@@ -32,6 +33,7 @@ func (c *Conf) Init() {
 	c.CPU.Init()
 	c.Docker.Init()
 	c.Compose.Init()
+	c.VMs.Init()
 	c.SysInfo.Init()
 	c.UserDrives.Init()
 	c.SystemDrives.Init()

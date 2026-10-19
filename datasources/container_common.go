@@ -14,9 +14,11 @@ type containerStatus struct {
 }
 
 type containerList struct {
-	Runtime    string
-	Root       bool
-	Containers []containerStatus
+	Runtime string
+	Root    bool
+	// Status meaning "intentionally stopped" for ignore_stopped, empty means "exited"
+	StoppedStatus string
+	Containers    []containerStatus
 }
 
 func (cl *containerList) getContent(ignoreList []string, ignoreStoppedList []string, warnOnly bool, sourceConf TableConfig) (content string) {
@@ -29,6 +31,11 @@ func (cl *containerList) getContent(ignoreList []string, ignoreStoppedList []str
 	// Make set of containers allowed to be stopped without a warning
 	var ignoreStoppedSet utils.StringSet
 	ignoreStoppedSet = ignoreStoppedSet.FromList(ignoreStoppedList)
+	// Status that counts as intentionally stopped
+	stoppedStatus := cl.StoppedStatus
+	if stoppedStatus == "" {
+		stoppedStatus = "exited"
+	}
 	// Process output
 	var goodCont = make(map[string]string)
 	var failedCont = make(map[string]string)
@@ -38,10 +45,10 @@ func (cl *containerList) getContent(ignoreList []string, ignoreStoppedList []str
 			continue
 		}
 		status := strings.ToLower(container.Status)
-		if status == "exited" && ignoreStoppedSet.Contains(container.Name) {
+		if status == stoppedStatus && ignoreStoppedSet.Contains(container.Name) {
 			continue
 		}
-		if status == "up" || status == "created" || status == "running" {
+		if status == "up" || status == "created" || status == "running" || status == "idle" {
 			goodCont[container.Name] = status
 		} else {
 			failedCont[container.Name] = status
