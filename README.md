@@ -8,6 +8,8 @@
 
 Maintained fork of [dkaser/unraid-motd](https://github.com/dkaser/unraid-motd), which is no longer maintained.
 
+Planned ideas are collected in the [roadmap](ROADMAP.md) (no guarantee that all of them will be implemented).
+
 ## Configuration
 
 Configuration can be stored at `/boot/config/plugins/motd/config.yaml`.
