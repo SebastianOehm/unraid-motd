@@ -4,7 +4,7 @@
 <PLUGIN 
   name="motd"
   author="Sebastian Oehm"
-  version="2026.10.19"
+  version="2026.10.19.1"
   pluginURL="https://raw.githubusercontent.com/SebastianOehm/unraid-motd/main/plugin/motd.plg"
   support="https://github.com/SebastianOehm/unraid-motd/issues"
   min="6.11.5"
@@ -13,26 +13,19 @@
 
 <CHANGES>
 <![CDATA[
-###2026.10.19###
-## New maintainer
-This plugin is now maintained by SebastianOehm, as a fork of dkaser/unraid-motd. Thanks to Derek Kaser for the original work.
-Report issues at https://github.com/SebastianOehm/unraid-motd/issues
-
+###2026.10.19.1###
 ## New
-- Compose module: shows the status of Compose Manager stacks, including fully stopped ones (opt-in, add `compose` to `display`)
-- `docker.ignore_stopped` / `compose.ignore_stopped`: hide intentionally stopped containers/stacks from warnings
-
-## Changed
-- Binary is now statically linked
+- VMs module: shows the state of libvirt VMs from `virsh list --all` (opt-in, add `vms` to `global.display`)
+- `vms.ignore` / `vms.ignore_stopped`: hide VMs entirely, or hide intentionally shut-off VMs from warnings
 
 
 For older releases, see https://github.com/SebastianOehm/unraid-motd/releases
 ]]>
 </CHANGES>
 
-<FILE Name="/boot/config/plugins/motd/unraid-motd-2026.10.19-amd64-1.txz" Run="upgradepkg --install-new">
-<URL>https://github.com/SebastianOehm/unraid-motd/releases/download/2026.10.19/unraid-motd-2026.10.19-amd64-1.txz</URL>
-<SHA256>563efb82a351067e4cc55880d682b80170c5c02c047d0a6704a3b16fe94346cc</SHA256>
+<FILE Name="/boot/config/plugins/motd/unraid-motd-2026.10.19.1-amd64-1.txz" Run="upgradepkg --install-new">
+<URL>https://github.com/SebastianOehm/unraid-motd/releases/download/2026.10.19.1/unraid-motd-2026.10.19.1-amd64-1.txz</URL>
+<SHA256>98e681ebd155cc5bfef293c941fae400578a50590d1a17d8a7cdd7c89b6dd644</SHA256>
 </FILE>
 
 <FILE Name="/boot/config/plugins/motd/figurine_linux_amd64_v1.3.0.tar.gz">
@@ -50,13 +43,13 @@ The 'install' script.
 tar xf /boot/config/plugins/motd/figurine_linux_amd64_v1.3.0.tar.gz -C /usr/local/bin/ --strip-components=1 deploy/figurine
 
 # cleanup old versions
-rm -f $(ls /boot/config/plugins/motd/unraid-motd-*.txz 2>/dev/null | grep -v '2026.10.19')
+rm -f $(ls /boot/config/plugins/motd/unraid-motd-*.txz 2>/dev/null | grep -v '2026.10.19.1')
 rm -f $(ls /boot/config/plugins/motd/figurine_linux_amd64_*.tar.gz 2>/dev/null | grep -v 'v1.3.0')
 
 echo ""
 echo "----------------------------------------------------"
 echo " motd has been installed."
-echo " Version: 2026.10.19"
+echo " Version: 2026.10.19.1"
 echo "----------------------------------------------------"
 echo ""
 ]]>
