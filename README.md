@@ -16,6 +16,16 @@ Configuration can be stored at `/boot/config/plugins/motd/config.yaml`.
 
 To view the full configuration, run `motd --dump-config`
 
+### Settings page
+
+The configuration can also be edited in the webGUI under **Settings → MOTD**. If no `config.yaml` exists yet, the page shows the defaults.
+
+- **Preview** renders the current editor content as it would appear at login, without saving it.
+- **Save** validates the YAML and writes it to `/boot/config/plugins/motd/config.yaml`. Invalid YAML is rejected with the parser error, and the existing file is left unchanged.
+- **Load defaults** replaces the editor content with the default configuration (not saved until you click **Save**).
+
+The same checks are available on the command line: `motd --check-config -c <file>` validates a file, and `motd --preview --width 100 -c <file>` renders it without a terminal.
+
 ### Global
 
 - `warnings_only` will hide content unless there is a warning, per-module override available
