@@ -12,7 +12,6 @@
 | **Array status** | `/var/local/emhttp/var.ini`, `disks.ini`, `/boot/config/parity-checks.log` | Array started or stopped; disabled or emulated disks; disks with read errors; parity check or rebuild progress and estimated finish; age and result of the last parity check |
 | **Disk temperatures** | `disks.ini` (doesn't wake spun-down disks) | Per-disk temperature with warn/crit thresholds; spun-down state |
 | **Notifications** | `/tmp/notifications/unread/` | Count of unread alerts and warnings, plus the latest few subjects |
-| **VMs** | `virsh list --all` | Running and stopped VMs, with `ignore` / `ignore_stopped` like `docker` |
 | **Updates available** | Unraid OS update check, plugin versions, Docker update status | Pending OS, plugin and container image updates |
 | **UPS (NUT)** | `upsc <ups>@<host>` (local or remote NUT server) | Status (`OL`/`OB`/`LB`), battery charge, runtime, load; warns when on battery or charge is below a threshold |
 | **GPU** | `nvidia-smi` | Temperature, use, VRAM, active processes |

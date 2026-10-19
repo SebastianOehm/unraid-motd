@@ -62,6 +62,22 @@ Reports the status of docker-compose stacks managed by the [Compose Manager](htt
 - `ignore` list of ignored stack names
 - `ignore_stopped` list of stack names that will not trigger a warning when fully stopped (they are hidden from the output while stopped; a stack with only some containers running still triggers a warning)
 
+### VMs
+
+Reports the state of libvirt VMs from `virsh list --all` (opt-in, add `vms` to `display`). Running and idle VMs are OK. A shut-off VM is a warning unless it is listed in `ignore_stopped`; paused, crashed, suspended or shutting-down VMs are always a warning. The module is skipped when the VM service is disabled in Unraid or `virsh` is not installed, and shows "Unavailable" when `virsh` fails or takes longer than 5 seconds (for example while libvirt is still starting).
+
+- `ignore` list of ignored VM names
+- `ignore_stopped` list of VM names that will not trigger a warning when shut off (they are hidden from the output while shut off)
+
+```yaml
+global:
+  display:
+    - [sysinfo]
+    - [docker, vms]
+vms:
+  ignore_stopped: [Windows 11]
+```
+
 ### Network
 
 - `show_ipv4` / `show_ipv6` show IPv4/IPv6 addresses in output
