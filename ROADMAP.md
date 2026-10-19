@@ -30,7 +30,6 @@
 
 | Feature | Idea |
 |---|---|
-| **Settings page** | Edit `config.yaml` and preview the output in the Unraid webGUI |
 | **Per-module timeout** | A slow module (hanging `virsh`, stale NFS mount) can't block the login |
 | **Output modes** | `--no-color`; `--json` for use in Home Assistant and scripts |
 | **Notify via cron** | Optionally send motd warnings as Unraid notifications |

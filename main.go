@@ -85,6 +85,9 @@ var args struct {
 	DumpConfig      bool   `arg:"--dump-config"                           help:"Dump config and exit"`
 	HideUnavailable bool   `arg:"--hide-unavailable,env:HIDE_UNAVAILABLE" help:"Hide unavailable modules"`
 	LogLevel        string `arg:"--log-level,env:LOG_LEVEL"               help:"Set log level"`
+	Preview         bool   `arg:"--preview"                               help:"Render output even without a terminal (for the settings page preview)"`
+	Width           int    `arg:"--width"                                 help:"Terminal width for --preview (default 80)"`
+	CheckConfig     bool   `arg:"--check-config"                          help:"Validate the config file and exit (exit code 1 on error)"`
 }
 
 func setupLogging() {
@@ -162,18 +165,39 @@ func runModules(conf *datasources.Conf) {
 }
 
 func main() {
-	if !term.IsTerminal(0) {
-		return
-	}
-	width, _, err := term.GetSize(0)
-	if err != nil {
-		return
-	}
-
 	args.ConfigFile = defaultCfgPath
 	arg.MustParse(&args)
 
 	setupLogging()
+
+	// Validate the config only (used by the settings page)
+	if args.CheckConfig {
+		if _, err := datasources.NewConfFromFile(args.ConfigFile, false); err != nil {
+			_, _ = fmt.Fprintln(os.Stderr, err)
+			os.Exit(1)
+		}
+		fmt.Println("OK")
+
+		return
+	}
+
+	var width int
+	if args.Preview || args.DumpConfig {
+		// No terminal required, e.g. when called from the webGUI (width only used by --preview)
+		width = args.Width
+		if width <= 0 {
+			width = 80
+		}
+	} else {
+		if !term.IsTerminal(0) {
+			return
+		}
+		var err error
+		width, _, err = term.GetSize(0)
+		if err != nil {
+			return
+		}
+	}
 
 	var mainStart time.Time
 	if args.Debug {
@@ -185,7 +209,8 @@ func main() {
 		log.Warn(err)
 	}
 
-	if conf.FixedTableWidth > width {
+	// Dumping must show the configured value, so only clamp when rendering
+	if !args.DumpConfig && conf.FixedTableWidth > width {
 		conf.FixedTableWidth = width
 	}
 

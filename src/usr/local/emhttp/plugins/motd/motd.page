@@ -1,0 +1,127 @@
+Menu="OtherSettings"
+Title="MOTD"
+Icon="fa-desktop"
+---
+<?php
+$motdCfg = '/boot/config/plugins/motd/config.yaml';
+$motdIsDefault = false;
+$motdCsrf = $var['csrf_token'] ?? '';
+if ($motdCsrf === '') {
+    $ini = @parse_ini_file('/var/local/emhttp/var.ini');
+    $motdCsrf = $ini['csrf_token'] ?? '';
+}
+if (is_file($motdCfg)) {
+    $motdText = (string)file_get_contents($motdCfg);
+} else {
+    $motdText = (string)shell_exec('/usr/local/bin/motd --dump-config -c /nonexistent 2>/dev/null');
+    $motdIsDefault = true;
+}
+?>
+<style>
+#motd-config { width:100%; box-sizing:border-box; font-family:monospace; font-size:13px; }
+#motd-status { margin-left:10px; }
+#motd-status.ok { color:#4c8c2b; }
+#motd-status.err { color:#c0392b; white-space:pre-wrap; }
+#motd-preview { display:none; background:#1e1e1e; color:#d4d4d4; font-family:monospace; padding:10px; margin-top:15px; overflow-x:auto; white-space:pre; }
+</style>
+
+<p>Edit the YAML configuration of the login MOTD. Preview renders it without saving; Save validates and writes <code>/boot/config/plugins/motd/config.yaml</code>.</p>
+<?php if ($motdIsDefault): ?>
+<p><em>No config.yaml yet &mdash; showing defaults. Saving creates the file.</em></p>
+<?php endif; ?>
+
+<textarea id="motd-config" spellcheck="false" rows="25"><?=htmlspecialchars($motdText)?></textarea>
+<p>
+  <input type="button" id="motd-btn-preview" value="Preview">
+  <input type="button" id="motd-btn-save" value="Save">
+  <input type="button" id="motd-btn-defaults" value="Load defaults">
+  <span id="motd-status"></span>
+</p>
+<pre id="motd-preview"></pre>
+
+<script>
+var motdCsrf = <?=json_encode($motdCsrf)?> || (typeof csrf_token !== 'undefined' ? csrf_token : '');
+
+function ansiToHtml(str) {
+  var pal = ['#000000','#cd0000','#00cd00','#cdcd00','#0000ee','#cd00cd','#00cdcd','#e5e5e5',
+             '#7f7f7f','#ff0000','#00ff00','#ffff00','#5c5cff','#ff00ff','#00ffff','#ffffff'];
+  function hex(n) { return ('0' + n.toString(16)).slice(-2); }
+  function c256(n) {
+    if (n < 16) return pal[n];
+    if (n < 232) {
+      n -= 16;
+      var l = [0, 95, 135, 175, 215, 255];
+      return '#' + hex(l[Math.floor(n / 36)]) + hex(l[Math.floor(n / 6) % 6]) + hex(l[n % 6]);
+    }
+    var g = 8 + (n - 232) * 10;
+    return '#' + hex(g) + hex(g) + hex(g);
+  }
+  str = String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  var fg = null, bold = false, open = false, out = '';
+  var re = /\x1b\[([0-9;]*)m|\x1b\[[0-9;?]*[ -\/]*[@-~]|\x1b[@-_]/g;
+  var last = 0, m;
+  function close() { if (open) { out += '</span>'; open = false; } }
+  while ((m = re.exec(str)) !== null) {
+    out += str.slice(last, m.index);
+    last = re.lastIndex;
+    if (m[1] === undefined) continue;
+    var p = m[1] === '' ? [0] : m[1].split(';').map(function (x) { return parseInt(x, 10) || 0; });
+    for (var i = 0; i < p.length; i++) {
+      var c = p[i];
+      if (c === 0) { fg = null; bold = false; }
+      else if (c === 1) bold = true;
+      else if (c === 22) bold = false;
+      else if (c >= 30 && c <= 37) fg = pal[c - 30];
+      else if (c >= 90 && c <= 97) fg = pal[c - 90 + 8];
+      else if (c === 39) fg = null;
+      else if (c === 38 || c === 48) {
+        var color = null;
+        if (p[i + 1] === 5) { color = c256(p[i + 2] & 255); i += 2; }
+        else if (p[i + 1] === 2) { color = 'rgb(' + (p[i + 2] & 255) + ',' + (p[i + 3] & 255) + ',' + (p[i + 4] & 255) + ')'; i += 4; }
+        if (c === 38) fg = color;
+      }
+    }
+    close();
+    var st = (fg ? 'color:' + fg + ';' : '') + (bold ? 'font-weight:bold;' : '');
+    if (st) { out += '<span style="' + st + '">'; open = true; }
+  }
+  out += str.slice(last);
+  close();
+  return out;
+}
+
+(function ($) {
+  var $btns = $('#motd-btn-preview, #motd-btn-save, #motd-btn-defaults');
+  var $status = $('#motd-status');
+  function setStatus(text, cls) { $status.attr('class', cls || '').text(text); }
+  function call(action, cb) {
+    $btns.prop('disabled', true);
+    setStatus('Working...', '');
+    $.post('/plugins/motd/include/action.php',
+           {action: action, config: $('#motd-config').val(), csrf_token: motdCsrf}, cb, 'json')
+      .fail(function (xhr) {
+        var msg = 'Request failed (' + xhr.status + ')';
+        try { if (xhr.responseJSON && xhr.responseJSON.error) msg = xhr.responseJSON.error; } catch (e) {}
+        setStatus(msg, 'err');
+      })
+      .always(function () { $btns.prop('disabled', false); });
+  }
+  $('#motd-btn-preview').click(function () {
+    call('preview', function (res) {
+      if (res.output !== undefined) $('#motd-preview').html(ansiToHtml(res.output)).show();
+      if (res.ok) setStatus('', ''); else setStatus(res.error || 'Preview failed', 'err');
+    });
+  });
+  $('#motd-btn-save').click(function () {
+    call('save', function (res) {
+      if (res.ok) setStatus('Saved.', 'ok'); else setStatus(res.error || 'Save failed', 'err');
+    });
+  });
+  $('#motd-btn-defaults').click(function () {
+    call('defaults', function (res) {
+      if (res.ok) { $('#motd-config').val(res.output); setStatus('Defaults loaded (not saved yet)', ''); }
+      else setStatus(res.error || 'Failed', 'err');
+    });
+  });
+})(jQuery);
+</script>
