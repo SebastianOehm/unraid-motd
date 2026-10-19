@@ -4,7 +4,7 @@
 <PLUGIN 
   name="motd"
   author="Sebastian Oehm"
-  version="2026.10.19.1"
+  version="2026.10.19.2"
   pluginURL="https://raw.githubusercontent.com/SebastianOehm/unraid-motd/main/plugin/motd.plg"
   support="https://github.com/SebastianOehm/unraid-motd/issues"
   min="6.11.5"
@@ -13,19 +13,22 @@
 
 <CHANGES>
 <![CDATA[
-###2026.10.19.1###
+###2026.10.19.2###
 ## New
-- VMs module: shows the state of libvirt VMs from `virsh list --all` (opt-in, add `vms` to `global.display`)
-- `vms.ignore` / `vms.ignore_stopped`: hide VMs entirely, or hide intentionally shut-off VMs from warnings
+- Settings page under **Settings → MOTD**: edit `config.yaml` in the webGUI, preview the login output before saving, and save with YAML validation
+- `motd --check-config` validates a config file, and `motd --preview --width <n>` renders the output without a terminal
+
+## Changed
+- `motd --dump-config` now also works without a terminal
 
 
 For older releases, see https://github.com/SebastianOehm/unraid-motd/releases
 ]]>
 </CHANGES>
 
-<FILE Name="/boot/config/plugins/motd/unraid-motd-2026.10.19.1-amd64-1.txz" Run="upgradepkg --install-new">
-<URL>https://github.com/SebastianOehm/unraid-motd/releases/download/2026.10.19.1/unraid-motd-2026.10.19.1-amd64-1.txz</URL>
-<SHA256>98e681ebd155cc5bfef293c941fae400578a50590d1a17d8a7cdd7c89b6dd644</SHA256>
+<FILE Name="/boot/config/plugins/motd/unraid-motd-2026.10.19.2-amd64-1.txz" Run="upgradepkg --install-new">
+<URL>https://github.com/SebastianOehm/unraid-motd/releases/download/2026.10.19.2/unraid-motd-2026.10.19.2-amd64-1.txz</URL>
+<SHA256>6d3f77ad714d34f3999284aafee882be325a1fd7ac08d11cc21e83df8546430d</SHA256>
 </FILE>
 
 <FILE Name="/boot/config/plugins/motd/figurine_linux_amd64_v1.3.0.tar.gz">
@@ -43,13 +46,13 @@ The 'install' script.
 tar xf /boot/config/plugins/motd/figurine_linux_amd64_v1.3.0.tar.gz -C /usr/local/bin/ --strip-components=1 deploy/figurine
 
 # cleanup old versions
-rm -f $(ls /boot/config/plugins/motd/unraid-motd-*.txz 2>/dev/null | grep -v '2026.10.19.1')
+rm -f $(ls /boot/config/plugins/motd/unraid-motd-*.txz 2>/dev/null | grep -v '2026.10.19.2')
 rm -f $(ls /boot/config/plugins/motd/figurine_linux_amd64_*.tar.gz 2>/dev/null | grep -v 'v1.3.0')
 
 echo ""
 echo "----------------------------------------------------"
 echo " motd has been installed."
-echo " Version: 2026.10.19.1"
+echo " Version: 2026.10.19.2"
 echo "----------------------------------------------------"
 echo ""
 ]]>
