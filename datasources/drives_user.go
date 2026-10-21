@@ -33,6 +33,8 @@ func getUserDriveUsage(sourceConf *ConfDrives) (content string, err error) {
 		return
 	}
 
+	candidates := []disk.PartitionStat{}
+
 PARTITIONS:
 	for _, partition := range parts {
 		if !slices.Contains(allowedFs, partition.Fstype) {
@@ -49,6 +51,10 @@ PARTITIONS:
 			continue PARTITIONS
 		}
 
+		candidates = append(candidates, partition)
+	}
+
+	for _, partition := range dedupePartitions(candidates) {
 		newStatus, percent, used, total, err := processDrive(sourceConf, partition.Mountpoint, partition.Fstype, status)
 		if err != nil {
 			continue
