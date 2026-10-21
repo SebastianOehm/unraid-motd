@@ -26,6 +26,40 @@ func getSystemDirs() []string {
 	return []string{"/var/log", "/boot", "/var/lib/docker"}
 }
 
+// dedupePartitions keeps one mount per device. Bind mounts of a drive (for
+// example a plugin mounting a folder from /mnt/cache elsewhere) report the same
+// device and the same usage, so listing them only repeats the drive. The mount
+// under /mnt/ wins, otherwise the shortest path. Order of first appearance is kept.
+func dedupePartitions(parts []disk.PartitionStat) []disk.PartitionStat {
+	better := func(a, b string) bool {
+		aMnt, bMnt := strings.HasPrefix(a, "/mnt/"), strings.HasPrefix(b, "/mnt/")
+		if aMnt != bMnt {
+			return aMnt
+		}
+
+		return len(a) < len(b)
+	}
+
+	index := map[string]int{}
+	result := []disk.PartitionStat{}
+
+	for _, partition := range parts {
+		i, seen := index[partition.Device]
+		if !seen {
+			index[partition.Device] = len(result)
+			result = append(result, partition)
+
+			continue
+		}
+
+		if better(partition.Mountpoint, result[i].Mountpoint) {
+			result[i] = partition
+		}
+	}
+
+	return result
+}
+
 func processDrive(sourceConf *ConfDrives, mountpoint string, fsType string, status string) (newStatus string, percent int, used string, total string, err error) {
 	switch fsType {
 	case "zfs":
