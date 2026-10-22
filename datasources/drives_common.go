@@ -84,7 +84,12 @@ func getStatus(sourceConf *ConfDrives, status string, percent int) string {
 }
 
 func processDriveZFS(sourceConf *ConfDrives, mountpoint string, status string) (newStatus string, percent int, used string, total string, err error) {
-	dataset, _ := zfs.GetDataset(mountpoint)
+	dataset, zfsErr := zfs.GetDataset(mountpoint)
+	if zfsErr != nil {
+		err = ZFSError(fmt.Sprintf("Failed to get dataset %s: %v", mountpoint, zfsErr))
+
+		return
+	}
 
 	if (!sourceConf.ShowZFSDatasets) && strings.Contains(dataset.Name, "/") {
 		err = ZFSError("Skipping dataset")
@@ -97,7 +102,10 @@ func processDriveZFS(sourceConf *ConfDrives, mountpoint string, status string) (
 
 	used = utils.FormatBytes(usedVal)
 	total = utils.FormatBytes(totalVal)
-	percent = int((usedVal / totalVal) * 100)
+
+	if totalVal > 0 {
+		percent = int((usedVal / totalVal) * 100)
+	}
 
 	newStatus = getStatus(sourceConf, status, percent)
 
