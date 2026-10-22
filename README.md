@@ -88,6 +88,24 @@ vms:
   ignore_stopped: [Windows 11]
 ```
 
+### UPS (NUT)
+
+Reports the UPS state from `upsc` of Network UPS Tools, for example the NUT plugin (opt-in, add `ups` to `display`). Shows status, battery charge, runtime and load; the title includes the UPS model when NUT reports it. Online is OK. On battery, replace battery, overload, bypass, off or an unknown status is a warning; low battery and forced shutdown are critical. The battery charge is a warning at or below `battery_warn` and critical at or below `battery_crit`. The module is skipped when `upsc` is not installed, and shows "Unavailable" when `upsc` fails (for example a wrong UPS name or an unreachable NUT server) or takes longer than 5 seconds.
+
+- `ups` UPS to query, as `name@host` or `name@host:port`, default `ups@localhost` (`upsc -l` lists the names on a host)
+- `battery_warn` / `battery_crit` battery charge in percent, default 50 and 20
+
+```yaml
+global:
+  display:
+    - [sysinfo]
+    - [docker, ups]
+ups:
+  ups: ups@localhost
+  battery_warn: 50
+  battery_crit: 20
+```
+
 ### Network
 
 - `show_ipv4` / `show_ipv6` show IPv4/IPv6 addresses in output
