@@ -16,6 +16,8 @@ Configuration can be stored at `/boot/config/plugins/motd/config.yaml`.
 
 To view the full configuration, run `motd --dump-config`
 
+All options, defaults and module behavior are described in detail in the [configuration reference](CONFIGURATION.md).
+
 ### Settings page
 
 The configuration can also be edited in the webGUI under **Settings → MOTD**. If no `config.yaml` exists yet, the page shows the defaults.
