@@ -4,7 +4,7 @@
 <PLUGIN 
   name="motd"
   author="Sebastian Oehm"
-  version="2026.10.22"
+  version="2026.10.22.1"
   pluginURL="https://raw.githubusercontent.com/SebastianOehm/unraid-motd/main/plugin/motd.plg"
   support="https://github.com/SebastianOehm/unraid-motd/issues"
   min="6.11.5"
@@ -13,18 +13,24 @@
 
 <CHANGES>
 <![CDATA[
-###2026.10.22###
+###2026.10.22.1###
+## New
+- UPS module: shows status, battery charge, runtime and load of a UPS from Network UPS Tools (`upsc`), for example the NUT plugin (opt-in, add `ups` to `global.display`). `ups.ups` picks the UPS (default `ups@localhost`), `ups.battery_warn` / `ups.battery_crit` set the battery thresholds (default 50 / 20)
+- GPU module: shows NVIDIA GPUs from `nvidia-smi` with temperature, utilization and VRAM, plus the processes using the GPU, labeled by Docker container name where possible (opt-in, add `gpu` to `global.display`; needs the Nvidia Driver plugin). `gpu.warn` / `gpu.crit` set the temperature thresholds (default 80 / 90 °C), `gpu.show_processes` turns the process list off
+- Like the other modules, both only list rows that need attention while `warnings_only` is on (the default); set `ups.warnings_only: false` or `gpu.warnings_only: false` to always see the full details
+
 ## Fixed
-- User Drives: bind mounts of a drive (for example a plugin mounting a folder from `/mnt/cache` somewhere else) no longer show up as extra rows with long paths; each drive is listed once, under its `/mnt/` path (thanks @Joly0, #8)
+- User Drives / System Drives: the MOTD no longer crashes when `zfs list` fails for a ZFS mount; that drive is skipped instead (reported by Masterwishx in the support thread)
+- ZFS drives that report 0 bytes used and 0 available now show 0% instead of a garbage percentage
 
 
 For older releases, see https://github.com/SebastianOehm/unraid-motd/releases
 ]]>
 </CHANGES>
 
-<FILE Name="/boot/config/plugins/motd/unraid-motd-2026.10.22-amd64-1.txz" Run="upgradepkg --install-new">
-<URL>https://github.com/SebastianOehm/unraid-motd/releases/download/2026.10.22/unraid-motd-2026.10.22-amd64-1.txz</URL>
-<SHA256>c5ba17fd8bb475eb6308940bfaa2ba0efdc779cab4233b05800516304a4a8707</SHA256>
+<FILE Name="/boot/config/plugins/motd/unraid-motd-2026.10.22.1-amd64-1.txz" Run="upgradepkg --install-new">
+<URL>https://github.com/SebastianOehm/unraid-motd/releases/download/2026.10.22.1/unraid-motd-2026.10.22.1-amd64-1.txz</URL>
+<SHA256>b597b62147206d2437e5d12a06cec35e7424ff5e1b2ce35658c5b41a2c229545</SHA256>
 </FILE>
 
 <FILE Name="/boot/config/plugins/motd/figurine_linux_amd64_v1.3.0.tar.gz">
@@ -42,13 +48,13 @@ The 'install' script.
 tar xf /boot/config/plugins/motd/figurine_linux_amd64_v1.3.0.tar.gz -C /usr/local/bin/ --strip-components=1 deploy/figurine
 
 # cleanup old versions
-rm -f $(ls /boot/config/plugins/motd/unraid-motd-*.txz 2>/dev/null | grep -v '2026.10.22')
+rm -f $(ls /boot/config/plugins/motd/unraid-motd-*.txz 2>/dev/null | grep -v '2026.10.22.1')
 rm -f $(ls /boot/config/plugins/motd/figurine_linux_amd64_*.tar.gz 2>/dev/null | grep -v 'v1.3.0')
 
 echo ""
 echo "----------------------------------------------------"
 echo " motd has been installed."
-echo " Version: 2026.10.22"
+echo " Version: 2026.10.22.1"
 echo "----------------------------------------------------"
 echo ""
 ]]>
