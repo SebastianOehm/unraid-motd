@@ -106,6 +106,22 @@ ups:
   battery_crit: 20
 ```
 
+### GPU
+
+Shows NVIDIA GPUs from `nvidia-smi` (opt-in, add `gpu` to `display`; needs the Nvidia Driver plugin). Each GPU is listed with its index, name, temperature, utilization and VRAM used/total, followed by the active compute processes with their VRAM use. Processes running in Docker containers are shown by container name, all others by process name. The title is OK, Warning or Critical based on GPU temperature. With `warnings_only` (the global default is true) only GPUs at or above `warn` are listed. The module is skipped when `nvidia-smi` is not installed and shows "Unavailable" when it fails or takes longer than 5 seconds. Values a card does not report are shown as "n/a".
+
+- `warn` / `crit` GPU temperature in °C, default 80 / 90
+- `show_processes` list the processes using the GPU, default true
+
+```yaml
+global:
+  display:
+    - [sysinfo]
+    - [docker, gpu]
+gpu:
+  warn: 75
+```
+
 ### Network
 
 - `show_ipv4` / `show_ipv6` show IPv4/IPv6 addresses in output
