@@ -1,8 +1,8 @@
 package datasources
 
 import (
-	"fmt"
 	"errors"
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
