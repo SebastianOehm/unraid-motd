@@ -9,6 +9,7 @@ var ErrCommandFailed = errors.New("Command failed")
 var ErrConfigFile = errors.New("Config file error")
 var ErrParse = errors.New("Parse error")
 var ErrZFS = errors.New("ZFS error")
+var ErrTimeout = errors.New("timed out")
 
 func CommandFailedError(message string) error {
 	return fmt.Errorf("Command Failed %w : %s", ErrCommandFailed, message)

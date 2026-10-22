@@ -8,6 +8,8 @@ type ConfGlobal struct {
 	ColDef [][]string `yaml:"display,flow,omitempty"`
 	// Padding between columns when using col_def
 	ColPad int `yaml:"padding"`
+	// Seconds a module may take before it is reported as timed out, 0 or less for no limit
+	Timeout int `yaml:"timeout"`
 	// Internal variables
 	debug bool
 

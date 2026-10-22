@@ -25,6 +25,7 @@ global:
     - [services, networks]
     - [user-drives, system-drives]
   padding: 1
+  timeout: 10
   table_width: 60
   border: true
 header:
@@ -76,6 +77,17 @@ services:
 
 Most modules show a status in their title: **OK** (green), **Warning** (yellow) or **Critical** (red). Individual rows are colored the same way. A module that cannot read its data shows **Unavailable** instead. Run `motd --hide-unavailable` (or set `HIDE_UNAVAILABLE=true`) to hide unavailable modules completely.
 
+A module that runs over its [timeout](#global) shows **Timed out** in yellow instead, for example "Services: Timed out". It counts as unavailable, so `--hide-unavailable` hides it too and `--debug` logs it. The module is not cancelled, motd just stops waiting for it. All modules run in parallel and every timeout counts from the same start, so the slowest allowed module bounds the total wait, the times do not add up.
+
+`vms`, `ups` and `gpu` also limit their external command to 5 seconds. When it hits that limit the module shows "Unavailable", not "Timed out". A module timeout below 5 seconds cuts them off earlier, a higher one does not extend that limit.
+
+```yaml
+global:
+  timeout: 5
+services:
+  timeout: 15
+```
+
 ## `global`
 
 | Option | Type | Default | Description |
@@ -83,6 +95,7 @@ Most modules show a status in their title: **OK** (green), **Warning** (yellow) 
 | `warnings_only` | bool | `true` | Only show rows that have a warning or critical state. The module title with its overall status is always shown. Can be overridden per module. |
 | `display` | list of lists | see above | Which modules run and how they are arranged. See [Layout](#layout-display). |
 | `padding` | int | `1` | Number of spaces between modules that share a row. |
+| `timeout` | int | `10` | Seconds each module may take before it is shown as "Timed out" (see [Status levels](#status-levels)). `0` or a negative value means no limit. Can be overridden per module, so `timeout: 0` in a module section disables the limit for just that module even when `global.timeout` is set. |
 | `table_width` | int | `60` | Fixed width of each module box in characters. `0` lets each box size itself to its content. The width is reduced to the terminal width if the terminal is narrower. Can be overridden per module. |
 | `border` | bool | `true` | Draw a border around each module and lines between its columns. Can be overridden per module. |
 
@@ -128,6 +141,7 @@ These options can be set in any module section and override the matching `global
 | `warnings_only` | bool | Override `global.warnings_only`. |
 | `border` | bool | Override `global.border`. |
 | `table_width` | int | Override `global.table_width`. |
+| `timeout` | int | Override `global.timeout`. |
 
 Two modules have different built-in defaults: `sysinfo` has `border: false`, and `user-drives` / `system-drives` have `warnings_only: false` (all drives are listed). Set the option in the module section to change that.
 

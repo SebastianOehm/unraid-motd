@@ -30,6 +30,7 @@ func (c *Conf) Init() {
 		{"user-drives", "system-drives"},
 	}
 	c.FixedTableWidth = 60
+	c.Timeout = 10
 	c.Header.Init()
 	// Init data source configs
 	c.CPU.Init()
