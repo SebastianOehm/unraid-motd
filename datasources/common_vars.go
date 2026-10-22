@@ -101,6 +101,8 @@ Loop:
 			go GetCompose(channel, conf)
 		case "vms":
 			go GetVMs(channel, conf)
+		case "ups":
+			go GetUPS(channel, conf)
 		case "sysinfo":
 			go GetSysInfo(channel, conf)
 		case "user-drives":
