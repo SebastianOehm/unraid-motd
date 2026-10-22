@@ -103,6 +103,8 @@ Loop:
 			go GetVMs(channel, conf)
 		case "ups":
 			go GetUPS(channel, conf)
+		case "gpu":
+			go GetGPU(channel, conf)
 		case "sysinfo":
 			go GetSysInfo(channel, conf)
 		case "user-drives":

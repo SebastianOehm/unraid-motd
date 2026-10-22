@@ -9,6 +9,7 @@ type Conf struct {
 	Compose      ConfCompose  `yaml:"compose"`
 	VMs          ConfVMs      `yaml:"vms"`
 	UPS          ConfUPS      `yaml:"ups"`
+	GPU          ConfGPU      `yaml:"gpu"`
 	SysInfo      ConfSysInfo  `yaml:"sysinfo"`
 	UserDrives   ConfDrives   `yaml:"user-drives"`
 	SystemDrives ConfDrives   `yaml:"system-drives"`
@@ -36,6 +37,7 @@ func (c *Conf) Init() {
 	c.Compose.Init()
 	c.VMs.Init()
 	c.UPS.Init()
+	c.GPU.Init()
 	c.SysInfo.Init()
 	c.UserDrives.Init()
 	c.SystemDrives.Init()
