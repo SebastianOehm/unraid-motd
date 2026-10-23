@@ -19,7 +19,6 @@
 
 | Module | Idea |
 |---|---|
-| **sysinfo** | Warn/crit thresholds for RAM, load and swap |
 | **network** | Warn when a link is down or below expected speed; bond status; optional WireGuard/Tailscale IP |
 | **drives** | Projected days until full; ZFS pool health from `zpool status` |
 

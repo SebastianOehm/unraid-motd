@@ -62,6 +62,12 @@ gpu:
   show_processes: true
 sysinfo:
   border: false
+  ram_warn: 90
+  ram_crit: 95
+  swap_warn: 50
+  swap_crit: 80
+  load_warn: 100
+  load_crit: 200
 user-drives:
   warnings_only: false
   warn: 70
@@ -182,7 +188,30 @@ header:
 
 ### `sysinfo`
 
-Shows the Unraid version, kernel, uptime, CPU usage (user, system, IO wait, idle), load average and RAM usage. It has no status and no own options, only the [common options](#options-available-in-every-module). `warnings_only` has no effect here.
+Shows the Unraid version, kernel, uptime, CPU usage (user, system, IO wait, idle), load average and RAM usage. A swap row is shown below RAM when the system has swap (Unraid has none by default). RAM and swap are shown as "N% used (X of Y)". RAM used is the total minus the available memory (`MemAvailable`). The version, kernel, uptime, load and RAM rows show "unavailable" when they cannot be read. The swap row is left out when RAM cannot be read.
+
+The RAM, swap and load values are colored when they reach a threshold: yellow at or above the warning threshold, red at or above the critical threshold. Percentages are rounded down, so 89.9 % does not reach `ram_warn: 90`. Critical wins over warning. Values below the warning threshold are not colored. Each of the three load averages (1, 5 and 15 minutes) is colored on its own. The module has no status in its title, and `warnings_only` has no effect here.
+
+| Option | Type | Default | Description |
+| --- | --- | --- | --- |
+| `ram_warn` | int | `90` | RAM used in percent at or above which the RAM value is yellow. `0` disables it. |
+| `ram_crit` | int | `95` | RAM used in percent at or above which the RAM value is red. `0` disables it. |
+| `swap_warn` | int | `50` | Swap used in percent at or above which the swap value is yellow. `0` disables it. |
+| `swap_crit` | int | `80` | Swap used in percent at or above which the swap value is red. `0` disables it. |
+| `load_warn` | int | `100` | Load average as a percentage of the logical CPUs (threads) at or above which a load value is yellow. `100` on a CPU with 8 threads means a load of 8.0. `0` disables it. |
+| `load_crit` | int | `200` | Same as `load_warn`, but red. `0` disables it. |
+
+The load can exceed 100 %. The load average counts processes that are running or waiting, including processes waiting for disk I/O. This is common on Unraid during a parity check or the mover.
+
+```yaml
+sysinfo:
+  ram_warn: 80
+  ram_crit: 90
+  load_warn: 0     # no coloring for the load
+  load_crit: 0
+```
+
+The [common options](#options-available-in-every-module) also apply.
 
 ### `cpu`
 
