@@ -4,7 +4,7 @@
 <PLUGIN 
   name="motd"
   author="Sebastian Oehm"
-  version="2026.10.22.1"
+  version="2026.10.23"
   pluginURL="https://raw.githubusercontent.com/SebastianOehm/unraid-motd/main/plugin/motd.plg"
   support="https://github.com/SebastianOehm/unraid-motd/issues"
   min="6.11.5"
@@ -13,24 +13,24 @@
 
 <CHANGES>
 <![CDATA[
-###2026.10.22.1###
+###2026.10.23###
 ## New
-- UPS module: shows status, battery charge, runtime and load of a UPS from Network UPS Tools (`upsc`), for example the NUT plugin (opt-in, add `ups` to `global.display`). `ups.ups` picks the UPS (default `ups@localhost`), `ups.battery_warn` / `ups.battery_crit` set the battery thresholds (default 50 / 20)
-- GPU module: shows NVIDIA GPUs from `nvidia-smi` with temperature, utilization and VRAM, plus the processes using the GPU, labeled by Docker container name where possible (opt-in, add `gpu` to `global.display`; needs the Nvidia Driver plugin). `gpu.warn` / `gpu.crit` set the temperature thresholds (default 80 / 90 °C), `gpu.show_processes` turns the process list off
-- Like the other modules, both only list rows that need attention while `warnings_only` is on (the default); set `ups.warnings_only: false` or `gpu.warnings_only: false` to always see the full details
+- Docker and Compose modules: running containers whose Docker healthcheck fails are shown as `unhealthy`, and crash-looping containers as `restart loop (N)`. Compose stacks name the affected services instead, for example `unhealthy: db` or `restart loop: worker`. `check_health` (default on), `restart_warn` (default 3 restarts, `0` turns it off) and `restart_window` (default 10 minutes) control the checks, in both the `docker` and `compose` sections
+- Per-module timeout: a module that takes longer than `global.timeout` seconds (default 10) is shown as "Timed out" instead of holding up the login. Set `timeout` in a module section to override it for that module, `0` turns the limit off
+- Configuration reference: [CONFIGURATION.md](https://github.com/SebastianOehm/unraid-motd/blob/main/CONFIGURATION.md) describes every option with its default
 
-## Fixed
-- User Drives / System Drives: the MOTD no longer crashes when `zfs list` fails for a ZFS mount; that drive is skipped instead (reported by Masterwishx in the support thread)
-- ZFS drives that report 0 bytes used and 0 available now show 0% instead of a garbage percentage
+## Changed
+- Both new checks are on by default, so containers that run but fail their healthcheck, or that keep restarting and have only just come back up, now cause a warning where they used to show as OK. Set `check_health: false` and `restart_warn: 0` to get the old behavior
+- A module that used to take longer than 10 seconds and then show up is now cut off as "Timed out". Raise its `timeout`, or set it to `0`, if it is slow but working
 
 
 For older releases, see https://github.com/SebastianOehm/unraid-motd/releases
 ]]>
 </CHANGES>
 
-<FILE Name="/boot/config/plugins/motd/unraid-motd-2026.10.22.1-amd64-1.txz" Run="upgradepkg --install-new">
-<URL>https://github.com/SebastianOehm/unraid-motd/releases/download/2026.10.22.1/unraid-motd-2026.10.22.1-amd64-1.txz</URL>
-<SHA256>b597b62147206d2437e5d12a06cec35e7424ff5e1b2ce35658c5b41a2c229545</SHA256>
+<FILE Name="/boot/config/plugins/motd/unraid-motd-2026.10.23-amd64-1.txz" Run="upgradepkg --install-new">
+<URL>https://github.com/SebastianOehm/unraid-motd/releases/download/2026.10.23/unraid-motd-2026.10.23-amd64-1.txz</URL>
+<SHA256>9c8811f7b835e49f80faa037c475234c26e3b9600a65e3f43418f9ce8c6e86fd</SHA256>
 </FILE>
 
 <FILE Name="/boot/config/plugins/motd/figurine_linux_amd64_v1.3.0.tar.gz">
@@ -48,13 +48,13 @@ The 'install' script.
 tar xf /boot/config/plugins/motd/figurine_linux_amd64_v1.3.0.tar.gz -C /usr/local/bin/ --strip-components=1 deploy/figurine
 
 # cleanup old versions
-rm -f $(ls /boot/config/plugins/motd/unraid-motd-*.txz 2>/dev/null | grep -v '2026.10.22.1')
+rm -f $(ls /boot/config/plugins/motd/unraid-motd-*.txz 2>/dev/null | grep -v '2026.10.23')
 rm -f $(ls /boot/config/plugins/motd/figurine_linux_amd64_*.tar.gz 2>/dev/null | grep -v 'v1.3.0')
 
 echo ""
 echo "----------------------------------------------------"
 echo " motd has been installed."
-echo " Version: 2026.10.22.1"
+echo " Version: 2026.10.23"
 echo "----------------------------------------------------"
 echo ""
 ]]>
