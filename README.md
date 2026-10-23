@@ -132,4 +132,4 @@ gpu:
 
 ### System information
 
-No extra config
+- `ram_warn` / `ram_crit`, `swap_warn` / `swap_crit` and `load_warn` / `load_crit` color the RAM, swap and load values yellow or red. A swap row is shown when the system has swap. See the [configuration reference](CONFIGURATION.md#sysinfo) for details.
