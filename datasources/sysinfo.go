@@ -174,17 +174,16 @@ func readDistroName(path string) (retStr string) {
 		if len(m) > 1 {
 			// Remove quotes
 			retStr = strings.Replace(string(m[1]), `"`, "", 2)
+			if retStr == "" {
+				retStr = utils.Warn("unavailable")
+			}
 
 			return
 		}
 	}
-	if err := scanner.Err(); err != nil {
-		retStr = utils.Warn("unavailable")
 
-		return
-	}
-
-	return
+	// No version line, or the file could not be read completely
+	return utils.Warn("unavailable")
 }
 
 func getUptime() string {

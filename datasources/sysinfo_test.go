@@ -279,10 +279,19 @@ func TestReadDistroName(t *testing.T) {
 			want:    "7.0.1",
 		},
 		{
-			// Current behavior: no version= line yields an empty string, not a warning.
 			name:    "no version line",
 			content: "build=2025\nname=unraid\n",
-			want:    "",
+			want:    utils.Warn("unavailable"),
+		},
+		{
+			name:    "empty quoted version",
+			content: "version=\"\"\n",
+			want:    utils.Warn("unavailable"),
+		},
+		{
+			name:    "empty version",
+			content: "version=\n",
+			want:    utils.Warn("unavailable"),
 		},
 	}
 
