@@ -20,7 +20,6 @@
 | Module | Idea |
 |---|---|
 | **sysinfo** | Warn/crit thresholds for RAM, load and swap |
-| **docker** | Show unhealthy containers (Docker healthcheck) and restart loops, not just stopped containers |
 | **network** | Warn when a link is down or below expected speed; bond status; optional WireGuard/Tailscale IP |
 | **drives** | Projected days until full; ZFS pool health from `zpool status` |
 

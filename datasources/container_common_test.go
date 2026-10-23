@@ -107,6 +107,46 @@ var containerContentCases = []containerContentCase{
 		absent:   []string{"Win"},
 	},
 	{
+		name:     "docker unhealthy row warns and is shown",
+		list:     dockerList(containerStatus{"web", "Up"}, containerStatus{"db", "unhealthy"}),
+		contains: []string{"Docker: Warning", "web", "db", "unhealthy"},
+		absent:   []string{"Critical"},
+	},
+	{
+		name:     "docker restart loop row warns and is shown",
+		list:     dockerList(containerStatus{"web", "Up"}, containerStatus{"flappy", "restart loop (5)"}),
+		contains: []string{"Docker: Warning", "flappy", "restart loop (5)"},
+		absent:   []string{"Critical"},
+	},
+	{
+		name:     "warnOnly shows unhealthy and hides running",
+		list:     dockerList(containerStatus{"web", "Up"}, containerStatus{"db", "unhealthy"}),
+		warnOnly: true,
+		contains: []string{"Docker: Warning", "db", "unhealthy"},
+		absent:   []string{"web"},
+	},
+	{
+		name:          "unhealthy in ignore_stopped is still shown",
+		list:          dockerList(containerStatus{"web", "Up"}, containerStatus{"db", "unhealthy"}),
+		ignoreStopped: []string{"db"},
+		contains:      []string{"Docker: Warning", "web", "db", "unhealthy"},
+	},
+	{
+		name:     "docker all unhealthy is critical",
+		list:     dockerList(containerStatus{"web", "unhealthy"}, containerStatus{"db", "unhealthy"}),
+		contains: []string{"Docker: Critical", "web", "db"},
+		absent:   []string{"Warning"},
+	},
+	{
+		name: "compose unhealthy stack warns",
+		list: &containerList{
+			Runtime:    "Compose",
+			Containers: []containerStatus{{"app", "running"}, {"shop", "unhealthy: db"}},
+		},
+		contains: []string{"Compose: Warning", "shop", "unhealthy: db"},
+		absent:   []string{"Critical"},
+	},
+	{
 		name:     "all ignored yields ok title",
 		list:     vmList(containerStatus{"Win", "running"}),
 		ignore:   []string{"Win"},
