@@ -28,4 +28,3 @@
 |---|---|
 | **Output modes** | `--no-color`; `--json` for use in Home Assistant and scripts |
 | **Notify via cron** | Optionally send motd warnings as Unraid notifications |
-| **Tests** | Fixture-based tests for the Unraid state file parsers |

@@ -148,8 +148,17 @@ func runCmd(name string, args string, buf *bytes.Buffer) (string, error) {
 	return retStr, nil
 }
 
-func getDistroName() (retStr string) {
-	file, err := os.Open("/etc/unraid-version")
+// unraidVersionFile is the file Unraid writes its version to.
+const unraidVersionFile = "/etc/unraid-version"
+
+// getDistroName returns the Unraid version of this host.
+func getDistroName() string {
+	return readDistroName(unraidVersionFile)
+}
+
+// readDistroName reads the version= line from the Unraid version file at path.
+func readDistroName(path string) (retStr string) {
+	file, err := os.Open(path)
 	if err != nil {
 		retStr = utils.Warn("unavailable")
 

@@ -4,12 +4,21 @@ import (
 	"errors"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"regexp"
 	"strings"
 
 	"github.com/dkaser/unraid-motd/utils"
 	"gopkg.in/ini.v1"
 )
+
+const (
+	servicesCfgDir = "/boot/config"
+	servicesRcDir  = "/etc/rc.d"
+)
+
+// serviceNameUnsafe matches every character that is not allowed in a service name
+var serviceNameUnsafe = regexp.MustCompile(`[^a-zA-Z0-9\-_]+`)
 
 type ConfServices struct {
 	ConfBase `yaml:",inline"`
@@ -38,60 +47,52 @@ func GetServices(channel chan<- SourceReturn, conf *Conf) {
 	defer func() {
 		channel <- returnData.Return()
 	}()
-	returnData.Content = getServiceStatus(&sourceConf)
+	returnData.Content = getServiceStatus(&sourceConf, servicesCfgDir, servicesRcDir)
 }
 
-func getServiceStatus(sourceConf *ConfServices) (content string) {
+// serviceDisabled reports whether the key in the cfg file is set to "no".
+// A cfg file that cannot be loaded counts as disabled.
+func serviceDisabled(path, key string) bool {
+	cfg, err := ini.Load(path)
+	if err != nil {
+		return true
+	}
+
+	return strings.ToLower(cfg.Section("").Key(key).String()) == "no"
+}
+
+// disabledServices returns for the services that can be switched off in the
+// Unraid settings whether they are disabled
+func disabledServices(cfgDir string) map[string]bool {
+	shareCfg := filepath.Join(cfgDir, "share.cfg")
+
+	return map[string]bool{
+		"sshd":   serviceDisabled(filepath.Join(cfgDir, "ident.cfg"), "USE_SSH"),
+		"samba":  serviceDisabled(shareCfg, "shareSMBEnabled"),
+		"nfsd":   serviceDisabled(shareCfg, "shareNFSEnabled"),
+		"docker": serviceDisabled(filepath.Join(cfgDir, "docker.cfg"), "DOCKER_ENABLED"),
+	}
+}
+
+// sanitizeServiceName removes everything but letters, digits, "-" and "_"
+func sanitizeServiceName(name string) string {
+	return serviceNameUnsafe.ReplaceAllString(name, "")
+}
+
+func getServiceStatus(sourceConf *ConfServices, cfgDir, rcDir string) (content string) {
 	outputTable := GetTableWriter(sourceConf)
 
 	overall := utils.Good("OK")
+	disabled := disabledServices(cfgDir)
 
-	sshDisabled := true
-	smbDisabled := true
-	nfsDisabled := true
-	dockerDisabled := true
-
-	ident, err := ini.Load("/boot/config/ident.cfg")
-	if err == nil {
-		sshDisabled = strings.ToLower(ident.Section("").Key("USE_SSH").String()) == "no"
-	}
-
-	shares, err := ini.Load("/boot/config/share.cfg")
-	if err == nil {
-		smbDisabled = strings.ToLower(shares.Section("").Key("shareSMBEnabled").String()) == "no"
-		nfsDisabled = strings.ToLower(shares.Section("").Key("shareNFSEnabled").String()) == "no"
-	}
-
-	docker, err := ini.Load("/boot/config/docker.cfg")
-	if err == nil {
-		dockerDisabled = strings.ToLower(docker.Section("").Key("DOCKER_ENABLED").String()) == "no"
-	}
-
-	//SERVICES:
 	for _, service := range sourceConf.Services {
-		reg := regexp.MustCompile(`[^a-zA-Z0-9\-_]+`)
-		service = reg.ReplaceAllString(service, "")
+		service = sanitizeServiceName(service)
 
-		switch service {
-		case "sshd":
-			if sshDisabled {
-				continue
-			}
-		case "nfsd":
-			if nfsDisabled {
-				continue
-			}
-		case "samba":
-			if smbDisabled {
-				continue
-			}
-		case "docker":
-			if dockerDisabled {
-				continue
-			}
+		if disabled[service] {
+			continue
 		}
 
-		cmd := exec.Command("/etc/rc.d/rc."+service, "status") // #nosec G204
+		cmd := exec.Command(filepath.Join(rcDir, "rc."+service), "status") // #nosec G204
 		err := cmd.Run()
 
 		if err != nil {

@@ -22,6 +22,8 @@ jobs:
         run: go get .
       - name: Vet
         run: go vet ./...
+      - name: Test
+        run: go test ./...
       - name: Build
         run: |
           mkdir build
