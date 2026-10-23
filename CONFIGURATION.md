@@ -39,10 +39,16 @@ cpu:
 docker:
   ignore: []
   ignore_stopped: []
+  check_health: true
+  restart_warn: 3
+  restart_window: 10
 compose:
   projects_path: /boot/config/plugins/compose.manager/projects
   ignore: []
   ignore_stopped: []
+  check_health: true
+  restart_warn: 3
+  restart_window: 10
 vms:
   ignore: []
   ignore_stopped: []
@@ -191,28 +197,49 @@ With `warnings_only`, only cores at or above `warn` are listed.
 
 ### `docker`
 
-Shows the state of Docker containers from the Docker API. Running and created containers are OK. Any other state (exited, paused, restarting, dead) is shown in red. The title is OK when no container has a problem, Warning when some do, and Critical when none of the containers is running. Shows "Unavailable" when Docker is not running.
+Shows the state of Docker containers from the Docker API. Running and created containers are OK. Any other state (exited, paused, restarting, dead) is shown in red. A running container whose Docker healthcheck reports unhealthy is shown as `unhealthy` in red. A container stuck in a restart loop is shown as `restart loop (N)` in red, where N is its restart count. A restart loop takes precedence over `unhealthy`. A container whose healthcheck is still `starting` is not a problem. The title is OK when no container has a problem, Warning when some do, and Critical when none of the containers is running. Shows "Unavailable" when Docker is not running.
+
+A container counts as a restart loop when its restart count is at or above `restart_warn` and it is either restarting right now or was started less than `restart_window` minutes ago. The restart count is the number of restarts by Docker's restart policy since the container was last started manually. Containers are only inspected (one extra Docker API call each) when they are running or restarting and at least one of the checks is enabled. If inspecting a container fails, its plain state is shown.
 
 | Option | Type | Default | Description |
 | --- | --- | --- | --- |
 | `ignore` | list of strings | `[]` | Container names that are never shown and never cause a warning. |
 | `ignore_stopped` | list of strings | `[]` | Container names that may be stopped (exited) without a warning. They are hidden while stopped. Any other non-running state still causes a warning. |
+| `check_health` | bool | `true` | Flag running containers whose Docker healthcheck reports unhealthy. |
+| `restart_warn` | int | `3` | Restart count from which a container counts as a restart loop. `0` disables the restart loop check. |
+| `restart_window` | int (minutes) | `10` | A container with enough restarts is only a restart loop while it is restarting or was started less than this many minutes ago. |
+
+`ignore` hides any container, including from the health and restart checks. `ignore_stopped` only hides exited containers.
 
 ```yaml
 docker:
   ignore: [some-test-container]
   ignore_stopped: [backup, handbrake]
+  check_health: true
+  restart_warn: 5
+  restart_window: 15
 ```
 
 ### `compose`
 
 Reports docker-compose stacks managed by the [Compose Manager](https://forums.unraid.net/topic/114415-plugin-docker-compose-manager/) plugin (opt-in, add `compose` to `display`). Stacks are read from disk instead of from running containers, so a stack stopped with `docker compose down` (which removes its containers) is still reported as stopped. A stack where only some containers run is a warning.
 
+Each stack shows one status. If several apply, the worst one wins, in this order: `exited` (no containers), `restart loop: <services>`, `partial`, `unhealthy: <services>`, `running`. The services are named by their compose service (or the container name if the label is missing), sorted and separated by commas. The health and restart loop checks work as described for the [`docker`](#docker) module.
+
 | Option | Type | Default | Description |
 | --- | --- | --- | --- |
 | `projects_path` | string | `/boot/config/plugins/compose.manager/projects` | Directory with one subdirectory per stack. |
 | `ignore` | list of strings | `[]` | Stack names that are never shown. |
 | `ignore_stopped` | list of strings | `[]` | Stack names that may be fully stopped without a warning. They are hidden while stopped. A partially running stack still causes a warning. |
+| `check_health` | bool | `true` | Flag stacks with running containers whose Docker healthcheck reports unhealthy. |
+| `restart_warn` | int | `3` | Restart count from which a container counts as a restart loop. `0` disables the restart loop check. |
+| `restart_window` | int (minutes) | `10` | A container with enough restarts is only a restart loop while it is restarting or was started less than this many minutes ago. |
+
+```yaml
+compose:
+  ignore_stopped: [dev-stack]
+  restart_warn: 0
+```
 
 ### `vms`
 

@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
+	"time"
 
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/filters"
@@ -24,6 +25,10 @@ const composeProjectNameFile = "project_name"
 // naming the stack (project) the container belongs to.
 const composeProjectLabel = "com.docker.compose.project"
 
+// composeServiceLabel is the label docker compose sets on every container it creates,
+// naming the service the container belongs to.
+const composeServiceLabel = "com.docker.compose.service"
+
 var composeFileNames = []string{"compose.yaml", "compose.yml", "docker-compose.yaml", "docker-compose.yml"}
 
 // ConfCompose extends ConfBase with docker-compose stack settings
@@ -36,6 +41,12 @@ type ConfCompose struct {
 	Ignore []string `yaml:"ignore"`
 	// List of stack names for which being fully stopped is not a warning
 	IgnoreStopped []string `yaml:"ignore_stopped"`
+	// Flag stacks with a running container whose healthcheck reports unhealthy
+	CheckHealth bool `yaml:"check_health"`
+	// Number of restarts from which a container counts as a restart loop, 0 disables the check
+	RestartWarn int `yaml:"restart_warn"`
+	// Minutes after a start during which a running container with that many restarts is still a restart loop
+	RestartWindow int `yaml:"restart_window"`
 }
 
 // Init sets the default Compose Manager projects path
@@ -44,6 +55,14 @@ func (c *ConfCompose) Init() {
 	c.ProjectsPath = "/boot/config/plugins/compose.manager/projects"
 	c.Ignore = []string{}
 	c.IgnoreStopped = []string{}
+	c.CheckHealth = true
+	c.RestartWarn = 3
+	c.RestartWindow = 10
+}
+
+// checks returns the health and restart check settings
+func (c *ConfCompose) checks() containerChecks {
+	return newContainerChecks(c.CheckHealth, c.RestartWarn, c.RestartWindow)
 }
 
 // GetCompose reports the status of docker-compose stacks found under ProjectsPath.
@@ -68,7 +87,7 @@ func GetCompose(channel chan<- SourceReturn, conf *Conf) {
 		return
 	}
 
-	stacks, err := getComposeStackStatus(projects)
+	stacks, err := getComposeStackStatus(projects, sourceConf.checks())
 	if err != nil {
 		t := GetTableWriter(sourceConf)
 		returnData.Content = RenderTable(t, "Compose: "+utils.Warn("Unavailable"))
@@ -141,56 +160,50 @@ func effectiveProjectName(dir string, dirName string) string {
 	return dirName
 }
 
-type composeCounts struct {
-	running int
-	total   int
-}
-
-// getComposeStackStatus reports one synthetic containerStatus per project: "running" if
-// every container in the stack is running, "exited" if the stack has no containers at
-// all (i.e. it has been "down"ed), or "partial" if only some containers are running.
-func getComposeStackStatus(projects []composeProject) (statuses []containerStatus, err error) {
+// getComposeStackStatus reports one synthetic containerStatus per project, reduced from
+// the status of its containers by composeStackStatus: "exited" if the stack has no
+// containers at all (i.e. it has been "down"ed), "restart loop: <services>" if a
+// container keeps restarting, "partial" if a container is not running, "unhealthy:
+// <services>" if a running container fails its healthcheck, otherwise "running".
+// Containers are only inspected if the health or restart check is enabled.
+func getComposeStackStatus(projects []composeProject, checks containerChecks) (statuses []containerStatus, err error) {
 	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithVersion(dockerMinAPI))
 	if err != nil {
 		return
 	}
 
+	ctx := context.Background()
 	f := filters.NewArgs(filters.Arg("label", composeProjectLabel))
 
-	containers, err := cli.ContainerList(context.Background(), container.ListOptions{All: true, Filters: f})
+	containers, err := cli.ContainerList(ctx, container.ListOptions{All: true, Filters: f})
 	if err != nil {
 		return
 	}
 
-	counts := make(map[string]composeCounts)
+	now := time.Now()
+	members := make(map[string][]composeMember)
 
-	for _, ct := range containers {
-		project, ok := ct.Labels[composeProjectLabel]
+	for _, listed := range containers {
+		project, ok := listed.Labels[composeProjectLabel]
 		if !ok {
 			continue
 		}
 
-		c := counts[project]
-		c.total++
-
-		if strings.ToLower(ct.State) == "running" {
-			c.running++
+		service := listed.Labels[composeServiceLabel]
+		if service == "" {
+			service = dockerContainerName(listed)
 		}
 
-		counts[project] = c
+		detail := containerDetail{State: listed.State}
+		if checks.enabled() && needsInspect(listed.State) {
+			detail = inspectDetail(ctx, cli, listed.ID, listed.State)
+		}
+
+		members[project] = append(members[project], composeMember{Service: service, containerDetail: detail})
 	}
 
 	for _, project := range projects {
-		c := counts[project.ProjectName]
-
-		status := "running"
-
-		switch {
-		case c.total == 0:
-			status = "exited"
-		case c.running < c.total:
-			status = "partial"
-		}
+		status := composeStackStatus(members[project.ProjectName], checks, now)
 
 		statuses = append(statuses, containerStatus{Name: project.Name, Status: status})
 	}
