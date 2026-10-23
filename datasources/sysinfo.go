@@ -136,18 +136,16 @@ func getCPU() (retStr string) {
 
 // runCmd executes command and returns stdout as string
 func runCmd(name string, args string, buf *bytes.Buffer) (string, error) {
-	var retStr string
 	cmd := exec.Command(name, args)
 	cmd.Stdout = buf
 	err := cmd.Run()
-	if err != nil {
-		retStr = utils.Warn("unavailable")
-	} else {
-		retStr = buf.String()
-	}
+	retStr := buf.String()
 	buf.Reset()
+	if err != nil {
+		return utils.Warn("unavailable"), CommandFailedError(err.Error())
+	}
 
-	return retStr, CommandFailedError(fmt.Sprint(err))
+	return retStr, nil
 }
 
 func getDistroName() (retStr string) {
