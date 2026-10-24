@@ -4,7 +4,7 @@
 <PLUGIN 
   name="motd"
   author="Sebastian Oehm"
-  version="2026.10.23"
+  version="2026.10.24"
   pluginURL="https://raw.githubusercontent.com/SebastianOehm/unraid-motd/main/plugin/motd.plg"
   support="https://github.com/SebastianOehm/unraid-motd/issues"
   min="6.11.5"
@@ -13,24 +13,23 @@
 
 <CHANGES>
 <![CDATA[
-###2026.10.23###
+###2026.10.24###
 ## New
-- Docker and Compose modules: running containers whose Docker healthcheck fails are shown as `unhealthy`, and crash-looping containers as `restart loop (N)`. Compose stacks name the affected services instead, for example `unhealthy: db` or `restart loop: worker`. `check_health` (default on), `restart_warn` (default 3 restarts, `0` turns it off) and `restart_window` (default 10 minutes) control the checks, in both the `docker` and `compose` sections
-- Per-module timeout: a module that takes longer than `global.timeout` seconds (default 10) is shown as "Timed out" instead of holding up the login. Set `timeout` in a module section to override it for that module, `0` turns the limit off
-- Configuration reference: [CONFIGURATION.md](https://github.com/SebastianOehm/unraid-motd/blob/main/CONFIGURATION.md) describes every option with its default
+- `--no-color` prints the motd without colors, including the banner. It also works without a terminal, for example from cron, a script or `ssh tower motd --no-color`, with the width from `--width` (default 80). The `NO_COLOR` environment variable ([no-color.org](https://no-color.org)) turns colors off too
+- System info: RAM, swap and load are colored yellow or red when they reach `ram_warn` / `ram_crit` (default 90 / 95 %), `swap_warn` / `swap_crit` (50 / 80 %) or `load_warn` / `load_crit` (100 / 200 % of the CPU threads). `0` turns a threshold off. A swap row is shown when the system has swap
 
-## Changed
-- Both new checks are on by default, so containers that run but fail their healthcheck, or that keep restarting and have only just come back up, now cause a warning where they used to show as OK. Set `check_health: false` and `restart_warn: 0` to get the old behavior
-- A module that used to take longer than 10 seconds and then show up is now cut off as "Timed out". Raise its `timeout`, or set it to `0`, if it is slow but working
+## Fixed
+- System info: the uptime no longer starts with "up" or leaves an empty row below it
+- System info: the Version row shows "unavailable" instead of staying empty when `/etc/unraid-version` has no version
 
 
 For older releases, see https://github.com/SebastianOehm/unraid-motd/releases
 ]]>
 </CHANGES>
 
-<FILE Name="/boot/config/plugins/motd/unraid-motd-2026.10.23-amd64-1.txz" Run="upgradepkg --install-new">
-<URL>https://github.com/SebastianOehm/unraid-motd/releases/download/2026.10.23/unraid-motd-2026.10.23-amd64-1.txz</URL>
-<SHA256>9c8811f7b835e49f80faa037c475234c26e3b9600a65e3f43418f9ce8c6e86fd</SHA256>
+<FILE Name="/boot/config/plugins/motd/unraid-motd-2026.10.24-amd64-1.txz" Run="upgradepkg --install-new">
+<URL>https://github.com/SebastianOehm/unraid-motd/releases/download/2026.10.24/unraid-motd-2026.10.24-amd64-1.txz</URL>
+<SHA256>a79a09827885b6674d9029c10dd0172cb1719915bd78db8aa2db11278f3f2f77</SHA256>
 </FILE>
 
 <FILE Name="/boot/config/plugins/motd/figurine_linux_amd64_v1.3.0.tar.gz">
@@ -48,13 +47,13 @@ The 'install' script.
 tar xf /boot/config/plugins/motd/figurine_linux_amd64_v1.3.0.tar.gz -C /usr/local/bin/ --strip-components=1 deploy/figurine
 
 # cleanup old versions
-rm -f $(ls /boot/config/plugins/motd/unraid-motd-*.txz 2>/dev/null | grep -v '2026.10.23')
+rm -f $(ls /boot/config/plugins/motd/unraid-motd-*.txz 2>/dev/null | grep -v '2026.10.24')
 rm -f $(ls /boot/config/plugins/motd/figurine_linux_amd64_*.tar.gz 2>/dev/null | grep -v 'v1.3.0')
 
 echo ""
 echo "----------------------------------------------------"
 echo " motd has been installed."
-echo " Version: 2026.10.23"
+echo " Version: 2026.10.24"
 echo "----------------------------------------------------"
 echo ""
 ]]>
