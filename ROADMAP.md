@@ -26,5 +26,5 @@
 
 | Feature | Idea |
 |---|---|
-| **Output modes** | `--no-color`; `--json` for use in Home Assistant and scripts |
+| **Output modes** | `--json` for use in Home Assistant and scripts |
 | **Notify via cron** | Optionally send motd warnings as Unraid notifications |

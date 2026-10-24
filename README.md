@@ -26,7 +26,7 @@ The configuration can also be edited in the webGUI under **Settings → MOTD**. 
 - **Save** validates the YAML and writes it to `/boot/config/plugins/motd/config.yaml`. Invalid YAML is rejected with the parser error, and the existing file is left unchanged.
 - **Load defaults** replaces the editor content with the default configuration (not saved until you click **Save**).
 
-The same checks are available on the command line: `motd --check-config -c <file>` validates a file, and `motd --preview --width 100 -c <file>` renders it without a terminal.
+The same checks are available on the command line: `motd --check-config -c <file>` validates a file, and `motd --preview --width 100 -c <file>` renders it without a terminal. `motd --no-color` prints the output without colors, also from scripts or cron. All command-line options are listed in the [configuration reference](CONFIGURATION.md#command-line-options).
 
 ### Global
 

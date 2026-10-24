@@ -374,9 +374,10 @@ system-drives:
 | `--dump-config` | | Print the applied configuration (file plus defaults) as YAML and exit. |
 | `--check-config` | | Validate the config file and exit. Prints `OK`, or the parser error with exit code 1. |
 | `--preview` | | Render the output even when not running in a terminal (used by the settings page). |
-| `--width <n>` | | Terminal width for `--preview`, default 80. |
+| `--width <n>` | | Width used for `--preview`, and for `--no-color` when not attached to a terminal. Default 80. In all other cases the terminal width is used. |
+| `--no-color` | `NO_COLOR` | Print the output without color codes, including the header banner. Status words and table borders are still printed. The flag also renders when `motd` is not attached to a terminal, for example from cron, a script or `ssh tower motd --no-color`. `NO_COLOR` (see [no-color.org](https://no-color.org)) turns color off with any non-empty value, but it does not make `motd` print without a terminal. |
 | `--hide-unavailable` | `HIDE_UNAVAILABLE` | Hide modules that cannot read their data instead of showing "Unavailable". |
 | `--debug` | `DEBUG` | Print debug log and timing of each module to stderr. |
 | `--log-level <level>` | `LOG_LEVEL` | Log level (for example `info`, `warn`, `error`). Logs are only printed together with `--debug`. |
 
-Without `--preview` or `--dump-config`, `motd` prints nothing when it is not attached to a terminal, so it does not disturb scripts or `scp`.
+Without `--preview`, `--no-color` or `--dump-config`, `motd` prints nothing when it is not attached to a terminal, so it does not disturb scripts or `scp`.
