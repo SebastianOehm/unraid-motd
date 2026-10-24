@@ -2,6 +2,7 @@ package datasources
 
 import (
 	"errors"
+	"path/filepath"
 	"strings"
 	"testing"
 
@@ -254,4 +255,60 @@ func TestSysInfoConfDefaults(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestReadDistroName(t *testing.T) {
+	tests := []struct {
+		name    string
+		content string
+		want    string
+	}{
+		{
+			name:    "quoted version as written by Unraid",
+			content: "version=\"7.1.4\"\n",
+			want:    "7.1.4",
+		},
+		{
+			name:    "unquoted version",
+			content: "version=6.12.13\n",
+			want:    "6.12.13",
+		},
+		{
+			name:    "version line after other lines",
+			content: "# comment\nbuild=2025\nversion=\"7.0.1\"\n",
+			want:    "7.0.1",
+		},
+		{
+			name:    "no version line",
+			content: "build=2025\nname=unraid\n",
+			want:    utils.Warn("unavailable"),
+		},
+		{
+			name:    "empty quoted version",
+			content: "version=\"\"\n",
+			want:    utils.Warn("unavailable"),
+		},
+		{
+			name:    "empty version",
+			content: "version=\n",
+			want:    utils.Warn("unavailable"),
+		},
+	}
+
+	for _, testCase := range tests {
+		t.Run(testCase.name, func(t *testing.T) {
+			path := writeTempFile(t, t.TempDir(), "unraid-version", testCase.content)
+
+			if got := readDistroName(path); got != testCase.want {
+				t.Errorf("readDistroName() = %q, want %q", got, testCase.want)
+			}
+		})
+	}
+
+	t.Run("missing file", func(t *testing.T) {
+		got := readDistroName(filepath.Join(t.TempDir(), "does-not-exist"))
+		if !strings.Contains(got, "unavailable") {
+			t.Errorf("readDistroName() = %q, want it to contain %q", got, "unavailable")
+		}
+	})
 }
