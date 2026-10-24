@@ -6,7 +6,7 @@
 ![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/SebastianOehm/unraid-motd/total)
 ![GitHub Downloads (all assets, latest release)](https://img.shields.io/github/downloads/SebastianOehm/unraid-motd/latest/total)
 
-Maintained fork of [dkaser/unraid-motd](https://github.com/dkaser/unraid-motd), which is no longer maintained.
+Continuation of [dkaser/unraid-motd](https://github.com/dkaser/unraid-motd) by Derek Kaser, which is archived and no longer maintained. That plugin is based on [cosandr/go-motd](https://github.com/cosandr/go-motd) by Andrei Costescu. Existing installs of the original plugin update to this version automatically.
 
 Planned ideas are collected in the [roadmap](ROADMAP.md) (no guarantee that all of them will be implemented).
 
