@@ -1,6 +1,9 @@
 package utils
 
-import "fmt"
+import (
+	"fmt"
+	"regexp"
+)
 
 var (
 	Good     = green
@@ -31,4 +34,12 @@ func Color(colorString string) func(...interface{}) string {
 	}
 
 	return sprint
+}
+
+// ansiRe matches CSI escape sequences such as color codes (e.g. "\x1b[1;32m", "\x1b[38;5;123m").
+var ansiRe = regexp.MustCompile("\x1b\\[[0-9;]*[A-Za-z]")
+
+// StripANSI removes ANSI CSI escape sequences (colors, resets) from s.
+func StripANSI(s string) string {
+	return ansiRe.ReplaceAllString(s, "")
 }

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"flag"
 	"fmt"
 	"io"
@@ -15,6 +16,7 @@ import (
 	"gopkg.in/yaml.v2"
 
 	"github.com/dkaser/unraid-motd/datasources"
+	"github.com/dkaser/unraid-motd/utils"
 
 	"github.com/arsham/figurine/figurine"
 	"golang.org/x/term"
@@ -85,9 +87,58 @@ var args struct {
 	DumpConfig      bool   `arg:"--dump-config"                           help:"Dump config and exit"`
 	HideUnavailable bool   `arg:"--hide-unavailable,env:HIDE_UNAVAILABLE" help:"Hide unavailable modules"`
 	LogLevel        string `arg:"--log-level,env:LOG_LEVEL"               help:"Set log level"`
+	NoColor         bool   `arg:"--no-color"                              help:"Print without colors; also renders when not in a terminal (width from --width)"`
 	Preview         bool   `arg:"--preview"                               help:"Render output even without a terminal (for the settings page preview)"`
-	Width           int    `arg:"--width"                                 help:"Terminal width for --preview (default 80)"`
+	Width           int    `arg:"--width"                                 help:"Width when not using the terminal size (--preview, or --no-color without a terminal; default 80)"`
 	CheckConfig     bool   `arg:"--check-config"                          help:"Validate the config file and exit (exit code 1 on error)"`
+}
+
+const defaultWidth = 80
+
+// renderWidth decides the output width and whether to render at all.
+//
+// forceFlagWidth (--preview, --dump-config) always uses flagWidth, even in a terminal.
+// allowNoTTY (--no-color) uses the terminal width when there is one, else flagWidth.
+// Otherwise output needs a terminal; without one nothing is rendered.
+// A flagWidth <= 0 means the default width.
+func renderWidth(forceFlagWidth, allowNoTTY bool, termWidth int, termOK bool, flagWidth int) (width int, ok bool) {
+	if !forceFlagWidth && termOK {
+		return termWidth, true
+	}
+	if !forceFlagWidth && !allowNoTTY {
+		return 0, false
+	}
+	if flagWidth <= 0 {
+		return defaultWidth, true
+	}
+
+	return flagWidth, true
+}
+
+// terminalWidth returns the width of stdin's terminal; ok is false without a terminal or when the size is unknown.
+func terminalWidth() (width int, ok bool) {
+	if !term.IsTerminal(0) {
+		return 0, false
+	}
+	width, _, err := term.GetSize(0)
+
+	return width, err == nil
+}
+
+// writeBanner prints the figurine header, without colors if requested.
+func writeBanner(text, font string) {
+	if !utils.NoColors {
+		if err := figurine.Write(os.Stdout, text, font); err != nil {
+			log.Debug(err.Error())
+		}
+
+		return
+	}
+	var buf bytes.Buffer
+	if err := figurine.Write(&buf, text, font); err != nil {
+		log.Debug(err.Error())
+	}
+	fmt.Print(utils.StripANSI(buf.String()))
 }
 
 func setupLogging() {
@@ -106,7 +157,7 @@ func setupLogging() {
 		return ret
 	}
 
-	log.SetFormatter(&log.TextFormatter{DisableTimestamp: true})
+	log.SetFormatter(&log.TextFormatter{DisableTimestamp: true, DisableColors: utils.NoColors})
 	log.SetOutput(io.Discard)
 	if args.Debug {
 		logLevel = log.DebugLevel
@@ -164,39 +215,33 @@ func runModules(conf *datasources.Conf) {
 	}
 }
 
+// checkConfig validates the config file, exiting with code 1 on error.
+func checkConfig() {
+	if _, err := datasources.NewConfFromFile(args.ConfigFile, false); err != nil {
+		_, _ = fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
+	}
+	fmt.Println("OK")
+}
+
 func main() {
 	args.ConfigFile = defaultCfgPath
 	arg.MustParse(&args)
+	utils.NoColors = args.NoColor || os.Getenv("NO_COLOR") != ""
 
 	setupLogging()
 
 	// Validate the config only (used by the settings page)
 	if args.CheckConfig {
-		if _, err := datasources.NewConfFromFile(args.ConfigFile, false); err != nil {
-			_, _ = fmt.Fprintln(os.Stderr, err)
-			os.Exit(1)
-		}
-		fmt.Println("OK")
+		checkConfig()
 
 		return
 	}
 
-	var width int
-	if args.Preview || args.DumpConfig {
-		// No terminal required, e.g. when called from the webGUI (width only used by --preview)
-		width = args.Width
-		if width <= 0 {
-			width = 80
-		}
-	} else {
-		if !term.IsTerminal(0) {
-			return
-		}
-		var err error
-		width, _, err = term.GetSize(0)
-		if err != nil {
-			return
-		}
+	termWidth, termOK := terminalWidth()
+	width, ok := renderWidth(args.Preview || args.DumpConfig, args.NoColor, termWidth, termOK, args.Width)
+	if !ok {
+		return
 	}
 
 	var mainStart time.Time
@@ -231,10 +276,7 @@ func main() {
 			text, _ = os.Hostname()
 		}
 
-		err := figurine.Write(os.Stdout, text, conf.Header.Font)
-		if err != nil {
-			log.Debug(err.Error())
-		}
+		writeBanner(text, conf.Header.Font)
 
 		fmt.Println("")
 	}
