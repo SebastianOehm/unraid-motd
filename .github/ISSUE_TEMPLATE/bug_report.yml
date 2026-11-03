@@ -1,0 +1,107 @@
+name: Bug report
+description: Something in the MOTD output, the settings page or the plugin install is wrong
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a problem. Please check the [open issues](https://github.com/SebastianOehm/unraid-motd/issues) first, maybe it has been reported already.
+
+  - type: textarea
+    id: description
+    attributes:
+      label: What happened?
+      description: A clear description of the problem.
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect instead?
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Set `...` in config.yaml
+        2. Log in via SSH
+        3. See ...
+    validations:
+      required: false
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Affected area
+      multiple: true
+      options:
+        - Header
+        - sysinfo
+        - cpu
+        - docker
+        - compose
+        - vms
+        - ups
+        - gpu
+        - services
+        - network
+        - user-drives / system-drives
+        - Layout / borders / colors
+        - Settings page (webGUI)
+        - Command line options
+        - Plugin install / update
+        - Other / not sure
+    validations:
+      required: true
+
+  - type: input
+    id: plugin-version
+    attributes:
+      label: Plugin version
+      description: Shown under **Plugins** in the webGUI.
+      placeholder: "2026.10.24"
+    validations:
+      required: true
+
+  - type: input
+    id: unraid-version
+    attributes:
+      label: Unraid version
+      placeholder: "7.2.0"
+    validations:
+      required: true
+
+  - type: textarea
+    id: config
+    attributes:
+      label: Configuration
+      description: |
+        Content of `/boot/config/plugins/motd/config.yaml`, or the output of `motd --dump-config`.
+        Remove anything you consider private (hostnames, IPs, container names).
+      render: yaml
+    validations:
+      required: false
+
+  - type: textarea
+    id: output
+    attributes:
+      label: MOTD output / error messages
+      description: |
+        Plain-text output helps more than a screenshot: `motd --no-color` prints it without color codes.
+        Screenshots can be dropped in here as well.
+      render: text
+    validations:
+      required: false
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Anything else?
+      description: Hardware details (GPU, UPS, sensors), recent changes, links, ...
+    validations:
+      required: false
