@@ -126,6 +126,20 @@ gpu:
   warn: 75
 ```
 
+### Updates
+
+Shows pending updates for Unraid OS, plugins and Docker containers (opt-in, add `updates` to `display`). motd never goes online: it reads the results of Unraid's own update checks (**Tools → Update OS**, **Plugins** and **Docker → Check for Updates**, plus the update check of the Compose Manager Plus plugin if installed), so it shows the state of the last check. Any pending update makes the module a Warning. A part without check results is left out, and "Not checked" is shown when there are none at all. See the [configuration reference](CONFIGURATION.md#updates) for details.
+
+- `check_os` / `check_plugins` / `check_docker` turn the three parts on or off, default true
+- `ignore` list of plugin or container names (or `Unraid OS`) that are never shown
+
+```yaml
+global:
+  display:
+    - [sysinfo]
+    - [docker, updates]
+```
+
 ### Network
 
 - `show_ipv4` / `show_ipv6` show IPv4/IPv6 addresses in output

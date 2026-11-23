@@ -98,6 +98,7 @@ var modules = map[string]moduleDef{
 	"vms":           {GetVMs, func(c *Conf) ConfBase { return c.VMs.ConfBase }, "VMs"},
 	"ups":           {GetUPS, func(c *Conf) ConfBase { return c.UPS.ConfBase }, "UPS"},
 	"gpu":           {GetGPU, func(c *Conf) ConfBase { return c.GPU.ConfBase }, "GPU"},
+	"updates":       {GetUpdates, func(c *Conf) ConfBase { return c.Updates.ConfBase }, "Updates"},
 	"sysinfo":       {GetSysInfo, func(c *Conf) ConfBase { return c.SysInfo.ConfBase }, "System Info"},
 	"user-drives":   {GetUserDrives, func(c *Conf) ConfBase { return c.UserDrives.ConfBase }, "User Drives"},
 	"system-drives": {GetSystemDrives, func(c *Conf) ConfBase { return c.SystemDrives.ConfBase }, "System Drives"},

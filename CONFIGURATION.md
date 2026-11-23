@@ -14,7 +14,7 @@ The configuration can also be edited in the webGUI under **Settings → MOTD**, 
 
 ## Full default configuration
 
-This is the configuration used when no `config.yaml` exists. Modules that are not listed in `global.display` (`compose`, `vms`, `ups`, `gpu`) are not run, but their options are shown here with their defaults.
+This is the configuration used when no `config.yaml` exists. Modules that are not listed in `global.display` (`compose`, `vms`, `ups`, `gpu`, `updates`) are not run, but their options are shown here with their defaults.
 
 ```yaml
 global:
@@ -60,6 +60,11 @@ gpu:
   warn: 80
   crit: 90
   show_processes: true
+updates:
+  check_os: true
+  check_plugins: true
+  check_docker: true
+  ignore: []
 sysinfo:
   border: false
   ram_warn: 90
@@ -135,6 +140,7 @@ Available module names:
 | `vms` | [Virtual machines](#vms) | `vms` |
 | `ups` | [UPS (NUT)](#ups) | `ups` |
 | `gpu` | [NVIDIA GPUs](#gpu) | `gpu` |
+| `updates` | [Pending updates](#updates) | `updates` |
 | `services` | [Services](#services) | `services` |
 | `networks` | [Network interfaces](#network) | `network` (singular) |
 | `user-drives` | [User drives](#user-drives-and-system-drives) | `user-drives` |
@@ -310,6 +316,35 @@ The title is OK, Warning or Critical based on GPU temperature. With `warnings_on
 | `warn` | int | `80` | GPU temperature in °C at or above which the state is a warning. |
 | `crit` | int | `90` | GPU temperature in °C at or above which the state is critical. |
 | `show_processes` | bool | `true` | List the processes using each GPU. |
+
+### `updates`
+
+Shows pending updates for Unraid OS, plugins and Docker containers (opt-in, add `updates` to `display`). motd does not check for updates itself and never goes online. It reads the results that Unraid's own update checks leave on the server, so it shows the state of the last check:
+
+- **Unraid OS:** the result of the OS update check (**Tools → Update OS**). A release you chose to ignore there is not shown.
+- **Plugins:** the plugin files downloaded by the last plugin check (**Plugins → Check for Updates**). Like the Plugins page, motd compares the version of each installed plugin with the downloaded one and skips updates that do not support the installed Unraid version (the plugin's `min` and `max`).
+- **Docker:** the update status Unraid keeps per image (**Docker → Check for Updates**). As in Unraid, a container has an update when the stored local digest of its image differs from the remote digest of the last check. A container that already runs the remote digest is not listed: Unraid only refreshes the stored digest when its own Docker manager updates a container, so it goes stale after an update by other means, for example with Docker Compose. Containers of Compose stacks are included when Unraid's check covers their image.
+- **Compose stacks with Compose Manager Plus:** if the [Compose Manager Plus](https://github.com/mstrhakr/compose_plugin) plugin is installed, motd also reads the result of its own update check. For every container that plugin could check, its result is used instead of Unraid's, because it compares the image the container runs with the remote image. The Docker part counts as checked when either result exists.
+
+Each update is one row with the plugin or container name. OS and plugin updates show the installed and the new version (`7.2.0 → 7.2.1`), containers show `update available`. Any update makes the module a Warning, otherwise it is OK. With `warnings_only: false`, a part without updates shows an `up to date` row.
+
+A part that is disabled or has no check results is left out. The Docker part is also left out when Docker is not running or does not answer within 5 seconds. If none of the enabled parts has results, the module shows "Updates: Not checked" in yellow. This counts as unavailable, so `--hide-unavailable` hides it. The OS and plugin results are kept in `/tmp` and are gone after a reboot until the next check, the Docker and Compose Manager Plus results survive a reboot. To have the checks run regularly, turn on the update notifications for Unraid OS, plugins and Docker under **Settings → Notification Settings**.
+
+| Option | Type | Default | Description |
+| --- | --- | --- | --- |
+| `check_os` | bool | `true` | Show a pending Unraid OS update. |
+| `check_plugins` | bool | `true` | Show pending plugin updates. |
+| `check_docker` | bool | `true` | Show containers with a pending image update. |
+| `ignore` | list of strings | `[]` | Names that are never shown and never cause a warning: plugin names as shown by the module, container names, or `Unraid OS`. |
+
+```yaml
+global:
+  display:
+    - [sysinfo]
+    - [docker, updates]
+updates:
+  ignore: [community.applications]
+```
 
 ### `services`
 
