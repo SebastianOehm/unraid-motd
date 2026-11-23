@@ -8,7 +8,7 @@ import (
 	"github.com/shirou/gopsutil/v3/host"
 	log "github.com/sirupsen/logrus"
 
-	"github.com/dkaser/unraid-motd/utils"
+	"github.com/SebastianOehm/unraid-motd/utils"
 )
 
 // ConfTempCPU extends ConfBase with a list of containers to ignore

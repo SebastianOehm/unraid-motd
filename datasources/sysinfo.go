@@ -13,7 +13,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/dkaser/unraid-motd/utils"
+	"github.com/SebastianOehm/unraid-motd/utils"
 	"github.com/jedib0t/go-pretty/v6/table"
 	"github.com/jedib0t/go-pretty/v6/text"
 

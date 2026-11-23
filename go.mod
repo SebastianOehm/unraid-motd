@@ -1,4 +1,4 @@
-module github.com/dkaser/unraid-motd
+module github.com/SebastianOehm/unraid-motd
 
 go 1.22.0
 

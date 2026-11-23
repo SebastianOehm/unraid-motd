@@ -5,7 +5,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/dkaser/unraid-motd/utils"
+	"github.com/SebastianOehm/unraid-motd/utils"
 )
 
 const (
