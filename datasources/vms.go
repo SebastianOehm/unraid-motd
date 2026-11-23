@@ -12,7 +12,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	"gopkg.in/ini.v1"
 
-	"github.com/dkaser/unraid-motd/utils"
+	"github.com/SebastianOehm/unraid-motd/utils"
 )
 
 // virshTimeout bounds how long a single virsh invocation may run, so a hung

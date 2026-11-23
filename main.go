@@ -15,8 +15,8 @@ import (
 	"github.com/sirupsen/logrus/hooks/writer"
 	"gopkg.in/yaml.v2"
 
-	"github.com/dkaser/unraid-motd/datasources"
-	"github.com/dkaser/unraid-motd/utils"
+	"github.com/SebastianOehm/unraid-motd/datasources"
+	"github.com/SebastianOehm/unraid-motd/utils"
 
 	"github.com/arsham/figurine/figurine"
 	"golang.org/x/term"

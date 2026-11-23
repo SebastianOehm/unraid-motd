@@ -5,7 +5,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/dkaser/unraid-motd/utils"
+	"github.com/SebastianOehm/unraid-motd/utils"
 )
 
 type containerStatus struct {

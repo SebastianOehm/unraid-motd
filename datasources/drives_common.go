@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/dkaser/unraid-motd/utils"
+	"github.com/SebastianOehm/unraid-motd/utils"
 	zfs "github.com/mistifyio/go-zfs/v3"
 	"github.com/shirou/gopsutil/v3/disk"
 )

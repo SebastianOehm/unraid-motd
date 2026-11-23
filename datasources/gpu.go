@@ -17,7 +17,7 @@ import (
 	"github.com/jedib0t/go-pretty/v6/text"
 	log "github.com/sirupsen/logrus"
 
-	"github.com/dkaser/unraid-motd/utils"
+	"github.com/SebastianOehm/unraid-motd/utils"
 )
 
 // nvidiaSmiTimeout bounds how long a single nvidia-smi invocation may run, so a
