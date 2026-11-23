@@ -26,6 +26,12 @@ var errMeminfoIncomplete = errors.New("MemTotal or MemAvailable missing in memin
 // errLoadavgMalformed is used when /proc/loadavg does not start with three load numbers.
 var errLoadavgMalformed = errors.New("malformed loadavg")
 
+// errVersionEmpty is used when the version line of the Unraid version file has no value.
+var errVersionEmpty = errors.New("empty version")
+
+// errVersionMissing is used when the Unraid version file has no version line.
+var errVersionMissing = errors.New("no version line")
+
 // loadFields is the number of load averages (1, 5 and 15 minutes).
 const loadFields = 3
 
@@ -157,33 +163,42 @@ func getDistroName() string {
 }
 
 // readDistroName reads the version= line from the Unraid version file at path.
-func readDistroName(path string) (retStr string) {
+func readDistroName(path string) string {
+	version, err := readUnraidVersion(path)
+	if err != nil {
+		return utils.Warn("unavailable")
+	}
+
+	return version
+}
+
+// readUnraidVersion returns the version= value, without quotes, from the Unraid
+// version file at path. It fails when the file cannot be read, has no version
+// line or the value is empty.
+func readUnraidVersion(path string) (string, error) {
 	file, err := os.Open(path)
 	if err != nil {
-		retStr = utils.Warn("unavailable")
-
-		return
+		return "", fmt.Errorf("open version file: %w", err)
 	}
 	defer file.Close()
 
 	scanner := bufio.NewScanner(file)
-	// Look for pretty name
 	re := regexp.MustCompile(`version=(.*)`)
 	for scanner.Scan() {
 		m := re.FindSubmatch(scanner.Bytes())
 		if len(m) > 1 {
 			// Remove quotes
-			retStr = strings.Replace(string(m[1]), `"`, "", 2)
-			if retStr == "" {
-				retStr = utils.Warn("unavailable")
+			version := strings.Replace(string(m[1]), `"`, "", 2)
+			if version == "" {
+				return "", errVersionEmpty
 			}
 
-			return
+			return version, nil
 		}
 	}
 
 	// No version line, or the file could not be read completely
-	return utils.Warn("unavailable")
+	return "", errVersionMissing
 }
 
 func getUptime() string {

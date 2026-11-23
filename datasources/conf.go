@@ -10,6 +10,7 @@ type Conf struct {
 	VMs          ConfVMs      `yaml:"vms"`
 	UPS          ConfUPS      `yaml:"ups"`
 	GPU          ConfGPU      `yaml:"gpu"`
+	Updates      ConfUpdates  `yaml:"updates"`
 	SysInfo      ConfSysInfo  `yaml:"sysinfo"`
 	UserDrives   ConfDrives   `yaml:"user-drives"`
 	SystemDrives ConfDrives   `yaml:"system-drives"`
@@ -39,6 +40,7 @@ func (c *Conf) Init() {
 	c.VMs.Init()
 	c.UPS.Init()
 	c.GPU.Init()
+	c.Updates.Init()
 	c.SysInfo.Init()
 	c.UserDrives.Init()
 	c.SystemDrives.Init()
